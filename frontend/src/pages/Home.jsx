@@ -3,34 +3,44 @@ import { Button } from "../components/Button.jsx";
 
 export default function Home() {
   return (
-    <div>
-      <div className="bg-primary m-10">color working ??</div>
-      <h1 className="text-center text-background">text working ??</h1>
+    <div className="min-h-screen flex flex-col items-center justify-center gap-10 px-6 bg-[var(--foreground)] text-[var(--background)]">
+      
+      {/* Title */}
+      <div className="text-center space-y-3">
+        <h1 className="text-5xl sm:text-6xl font-extrabold tracking-wide">
+          Arohana 2026
+        </h1>
+        <p className="text-[var(--background)]/70 text-lg">
+          Annual Tech & Cultural Fest
+        </p>
+      </div>
 
-      {/* see if it is working or not */}
-      <div className="flex justify-center gap-5">
+      {/* Navigation Buttons */}
+      <div className="flex flex-wrap justify-center gap-5">
         <Link to="/login">
-        <Button className="text-2xl font-bold text-foreground">Login</Button>
-      </Link>
+          <Button className="text-lg font-semibold px-6 py-3">
+            Login
+          </Button>
+        </Link>
 
-      <Link to="/signup">
-        <Button className="text-2xl font-bold text-foreground">Signup</Button>
-      </Link>
+        <Link to="/signup">
+          <Button className="text-lg font-semibold px-6 py-3">
+            Signup
+          </Button>
+        </Link>
 
-      <Link to="/events">
-        <Button className="text-2xl font-bold text-foreground">Events</Button>
-      </Link>
+        <Link to="/events">
+          <Button className="text-lg font-semibold px-6 py-3">
+            Events
+          </Button>
+        </Link>
 
-      <Link to="/dashboard">
-        <Button className="text-2xl font-bold text-foreground">Dashboard</Button>
-      </Link>
-
-      <Link to="/notFound">
-        <Button className="text-2xl font-bold text-foreground">Not Found</Button>
-      </Link>
+        <Link to="/dashboard">
+          <Button className="text-lg font-semibold px-6 py-3">
+            Dashboard
+          </Button>
+        </Link>
       </div>
     </div>
-
-
-  )
+  );
 }
