@@ -1,1 +1,56 @@
+@import url("https://fonts.googleapis.com/css2?family=Georama:ital,wght@0,100..900;1,100..900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap");
+
 @import "tailwindcss";
+
+html,
+body {
+  font-family: 'general', sans-serif;
+  width: 100dvw;
+  overflow-x: hidden;
+}
+
+@theme {
+  --color-violet-brand-100: #9E72C3; /* Lightest */
+  --color-violet-brand-200: #924DBF; /* Vibrant Primary */
+  --color-violet-brand-300: #7338A0; /* Slightly Darker ( for hover) */
+  --color-violet-brand-400: #4A2574; /* Dark Purple */
+  --color-violet-brand-900: #0F0529; /* Deepest/Near Black */
+  --color-white: #ffffff;
+
+  --color-background: var(--color-white);
+  --color-background-alt: var(--color-violet-brand-100);
+  --color-foreground: var(--color-violet-brand-900);
+
+  --color-primary: var(--color-violet-brand-200);
+  --color-primary-foreground: var(--color-white);
+  --color-primary-hover: var(--color-violet-brand-300);
+
+  --color-secondary: var(--color-violet-brand-100);
+  --color-secondary-foreground: var(--color-violet-brand-900);
+
+  --color-muted: var(--color-violet-brand-400);
+  --color-muted-foreground: var(--color-white);
+
+  --color-border: var(--color-violet-brand-100);
+}
+
+/*
+use this like text-foreground, bg-primary, text-primary-foreground, bg-muted, text-muted-foreground, border-border, text-secondary, bg-background-alt
+*/
+
+@layer base {
+  body {
+    @apply bg-foreground text-background;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-background font-bold;
+  }
+}
+
+
+@layer components {
+  /* put here styles of components files */
+
+}
