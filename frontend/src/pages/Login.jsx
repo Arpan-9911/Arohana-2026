@@ -1,6 +1,7 @@
 import AuthLayout from "../layouts/AuthLayout";
 import Input from "../components/Input";
 import { Link } from "react-router-dom";
+import {Eye, EyeClosed, EyeClosedIcon, icons, Mail} from "lucide-react"
 
 export default function Login() {
   return (
@@ -8,7 +9,7 @@ export default function Login() {
       title="Welcome Back!"
       subtitle={
         <>
-          <span className="text-lemon-chiffon">Don't have an account?{" "}</span>
+          <span className="text-muted">Don't have an account?{" "}</span>
           <Link to="/signup" className="text-muted font-semibold">
             Sign up
           </Link>
@@ -16,12 +17,12 @@ export default function Login() {
       }
     >
       <form className="space-y-6">
-        <Input required label="Email" type="Email" />
-        <Input required label="Password" type="password" />
+        <Input required label="Email" type="Email" icon={Mail}/>
+        <Input required label="Password" type="password" icon={EyeClosed} />
 
         <div className="flex justify-between items-center text-sm">
-          <label className="flex items-center gap-2">
-            <input type="checkbox" className="accent-lemon-chiffon" />
+          <label className="flex text-muted items-center gap-2">
+            <input type="checkbox" className= "accent-muted/40" />
             Remember me
           </label>
 
