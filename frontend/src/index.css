@@ -3,7 +3,7 @@
 @import "tailwindcss";
 
 /* =========================
-   CSS Variables (VS Code safe)
+   CSS Variables
 ========================= */
 :root {
   --violet-100: #9e72c3;
@@ -26,6 +26,40 @@
 }
 
 /* =========================
+   Tailwind Theme Tokens
+========================= */
+@theme {
+  --color-violet-brand-100: #9E72C3;
+  --color-violet-brand-200: #924DBF;
+  --color-violet-brand-300: #7338A0;
+  --color-violet-brand-400: #4A2574;
+  --color-violet-brand-900: #0F0529;
+
+  --color-lemon-chiffon: #FEFACD;
+  --color-white: #ffffff;
+
+  --color-background: var(--color-white);
+  --color-background-alt: var(--color-violet-brand-100);
+  --color-foreground: var(--color-violet-brand-900);
+
+  --color-primary: var(--color-violet-brand-200);
+  --color-primary-foreground: var(--color-white);
+  --color-primary-hover: var(--color-violet-brand-300);
+
+  --color-secondary: var(--color-violet-brand-100);
+  --color-secondary-foreground: var(--color-white);
+  --color-muted: var(--color-violet-brand-400);
+  --color-muted-foreground: var(--color-white);
+
+  --color-border: var(--color-violet-brand-100);
+
+  --color-input: var(--color-violet-brand-100);
+  --color-input-foreground: var(--color-white);
+
+  --color-border: var(--color-violet-brand-100);
+}
+
+/* =========================
    Base HTML / Body
 ========================= */
 html,
@@ -35,38 +69,20 @@ body {
   overflow-x: hidden;
 }
 
-
-
-@theme {
-  --color-violet-brand-100: #9E72C3; /* Lightest */
-  --color-violet-brand-200: #924DBF; /* Vibrant Primary */
-  --color-violet-brand-300: #7338A0; /* Slightly Darker ( for hover) */
-  --color-violet-brand-400: #4A2574; /* Dark Purple */
-  --color-violet-brand-900: #0F0529; /* Deepest/Near Black */
-  --color-lemon-chiffon: #FEFACD;
-  --color-white: #ffffff;
-
-  --color-background: var(--color-white);
-  --color-background-alt: var(--color-violet-brand-100);
-  --color-foreground: var(--color-violet-brand-900);
-  /* --color-foreground: var(--color-lemon-chiffon); */
-  
-  --color-primary: var(--color-violet-brand-200);
-  --color-primary-foreground: var(--color-white);
-  --color-primary-hover: var(--color-violet-brand-300);
-
-  .transform-style-preserve-3d {
-    transform-style: preserve-3d;
-  }
-
-  .backface-hidden {
-    backface-visibility: hidden;
-  }
-
-
-  --color-border: var(--color-violet-brand-100);
+/* =========================
+   Custom Utilities
+========================= */
+.transform-style-preserve-3d {
+  transform-style: preserve-3d;
 }
 
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+/* =========================
+   Scrollbar
+========================= */
 html::-webkit-scrollbar {
   width: 0.5rem;
 }
@@ -81,40 +97,54 @@ html::-webkit-scrollbar-thumb {
 }
 
 /*
-use this like text-foreground, bg-primary, text-primary-foreground, bg-muted, text-muted-foreground, border-border, text-secondary, bg-background-alt
+use like:
+text-foreground
+bg-primary
+text-primary-foreground
+bg-muted
+border-border
+bg-background-alt
 */
 
-  .animate-view-bounce {
-    animation: view-bounce 1.4s ease-in-out infinite;
-  }
+/* =========================
+   Animations
+========================= */
+.animate-view-bounce {
+  animation: view-bounce 1.4s ease-in-out infinite;
+}
 
-  @keyframes rise-up {
-    from { opacity: 0; transform: translateY(40px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .animate-rise {
-    animation: rise-up 0.8s ease-out forwards;
-  }
-
-  @keyframes type-in {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-      text-shadow: none;
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-      text-shadow:
-        0 0 10px rgba(158,114,195,0.7),
-        0 0 20px rgba(158,114,195,0.5),
-        0 0 40px rgba(158,114,195,0.3);
-    }
-  }
-
-  .animate-type {
-    animation: type-in 0.6s ease-out forwards;
+@keyframes rise-up {
+  from {
     opacity: 0;
+    transform: translateY(40px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-rise {
+  animation: rise-up 0.8s ease-out forwards;
+}
+
+@keyframes type-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+    text-shadow: none;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    text-shadow:
+      0 0 10px rgba(158,114,195,0.7),
+      0 0 20px rgba(158,114,195,0.5),
+      0 0 40px rgba(158,114,195,0.3);
+  }
+}
+
+.animate-type {
+  animation: type-in 0.6s ease-out forwards;
+  opacity: 0;
 }

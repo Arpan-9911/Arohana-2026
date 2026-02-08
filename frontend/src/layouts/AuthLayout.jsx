@@ -7,11 +7,24 @@ export default function AuthLayout({
   reverse = false,
 }) {
   return (
-    <div className="min-h-screen bg-primary flex items-center justify-center p-6 text-lemon-chiffon">
+    <div className="
+      min-h-screen
+      bg-[radial-gradient(circle_at_top,#1a0f3d,#070313_60%)]
+      flex items-center justify-center
+      p-6 text-lemon-chiffon
+      relative overflow-hidden
+    ">
+      <div className="absolute -top-20 -left-20 w-96 h-96 bg-primary/50 blur-[120px] rounded-full"/>
+      <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-violet-brand-300/50 blur-[120px] rounded-full"/>
+
       {/* Fixed width container: max-w-6xl ensures it doesn't get too wide.
         grid-cols-1 for mobile, grid-cols-2 for desktop.
       */}
-      <div className="bg-background-alt shadow-2xl rounded-3xl overflow-hidden w-full max-w-5xl">
+      <div className="bg-[#0d0822]/80
+          backdrop-blur-2xl
+          border border-white/10
+          shadow-[0_30px_80px_rgba(0,0,0,0.7)]
+          rounded-4xl overflow-hidden w-full max-w-5xl">
         <motion.div
           // The 'key' forces the animation to restart when 'reverse' changes
           key={reverse ? "signup" : "login"}
@@ -21,12 +34,12 @@ export default function AuthLayout({
           }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="grid grid-cols-1 md:grid-cols-2 min-h-[600px]"
+          className="grid grid-cols-1 md:grid-cols-2"
         >
           {/* FORM SIDE */}
           <div
             className={`
-            flex flex-col justify-center p-8 md:p-16 
+            flex flex-col justify-center p-6 md:p-16 py-10 backdrop-blur-xl 
             ${reverse ? "md:order-2" : "md:order-1"}
           `}
           >
@@ -45,11 +58,11 @@ export default function AuthLayout({
           `}
           >
             <div className="relative w-full aspect-square max-w-87.5">
-              <div className="absolute inset-0 bg-secondary-foreground/10 rounded-full blur-3xl" />
+              <div className="absolute inset-0 bg-secondary-foreground/50 rounded-full blur-3xl" />
               <img
                 src="./login.jpeg"
                 alt="hyperion"
-                className="relative z-10 w-full h-full object-cover rounded-full border-4 border-secondary-foreground/20"
+                className="relative z-10 w-full h-full object-cover rounded-full border-4 border-secondary-foreground"
               />
             </div>
           </div>
