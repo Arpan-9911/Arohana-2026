@@ -35,34 +35,25 @@ body {
   overflow-x: hidden;
 }
 
-/* =========================
-   Tailwind Base
-========================= */
-@layer base {
-  body {
-    background-color: var(--foreground);
-    color: var(--background);
-    -webkit-font-smoothing: antialiased;
-  }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    color: var(--background);
-    font-weight: 700;
-  }
-}
 
-/* =========================
-   Utilities
-========================= */
-@layer utilities {
-  .perspective {
-    perspective: 1200px;
-  }
+@theme {
+  --color-violet-brand-100: #9E72C3; /* Lightest */
+  --color-violet-brand-200: #924DBF; /* Vibrant Primary */
+  --color-violet-brand-300: #7338A0; /* Slightly Darker ( for hover) */
+  --color-violet-brand-400: #4A2574; /* Dark Purple */
+  --color-violet-brand-900: #0F0529; /* Deepest/Near Black */
+  --color-lemon-chiffon: #FEFACD;
+  --color-white: #ffffff;
+
+  --color-background: var(--color-white);
+  --color-background-alt: var(--color-violet-brand-100);
+  --color-foreground: var(--color-violet-brand-900);
+  /* --color-foreground: var(--color-lemon-chiffon); */
+  
+  --color-primary: var(--color-violet-brand-200);
+  --color-primary-foreground: var(--color-white);
+  --color-primary-hover: var(--color-violet-brand-300);
 
   .transform-style-preserve-3d {
     transform-style: preserve-3d;
@@ -72,14 +63,26 @@ body {
     backface-visibility: hidden;
   }
 
-  .rotate-y-180 {
-    transform: rotateY(180deg);
-  }
 
-  @keyframes view-bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-  }
+  --color-border: var(--color-violet-brand-100);
+}
+
+html::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+html::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 5rem;
+}
+
+/*
+use this like text-foreground, bg-primary, text-primary-foreground, bg-muted, text-muted-foreground, border-border, text-secondary, bg-background-alt
+*/
 
   .animate-view-bounce {
     animation: view-bounce 1.4s ease-in-out infinite;
