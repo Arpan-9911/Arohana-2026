@@ -10,8 +10,8 @@ export default function Signup() {
       title="Join the Pack!"
       subtitle={
         <>
-          <span className="text-muted">Already have an account?</span>{" "}
-          <Link to="/login" className="text-muted font-semibold">
+          <span>Already have an account? </span>
+          <Link to="/login" className="font-semibold text-background-alt">
             Sign in
           </Link>
         </>
@@ -26,10 +26,17 @@ export default function Signup() {
 
           <button
             className="
-              w-full bg-secondary-foreground
-              hover:bg-muted
-              py-4 rounded-full
-              text-xl font-bold
+              w-full
+              bg-linear-to-r from-violet-brand-300 to-violet-brand-200
+              shadow-[0_10px_30px_rgba(146,77,191,0.5)]
+              hover:shadow-[0_15px_45px_rgba(146,77,191,0.7)]
+              py-4
+              rounded-full
+              text-lg font-bold
+              tracking-wide
+              transition-all duration-300
+              hover:scale-[1.02]
+              active:scale-95
             "
           >
             Register
