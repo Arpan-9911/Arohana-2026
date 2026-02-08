@@ -2,9 +2,35 @@
 
 @import "tailwindcss";
 
+/* =========================
+   CSS Variables (VS Code safe)
+========================= */
+:root {
+  --violet-100: #9e72c3;
+  --violet-200: #924dbf;
+  --violet-300: #7338a0;
+  --violet-400: #4a2574;
+  --violet-900: #0f0529;
+
+  --white: #ffffff;
+
+  --background: var(--white);
+  --foreground: var(--violet-900);
+
+  --primary: var(--violet-200);
+  --primary-hover: var(--violet-300);
+
+  --secondary: var(--violet-100);
+  --muted: var(--violet-400);
+  --border: var(--violet-100);
+}
+
+/* =========================
+   Base HTML / Body
+========================= */
 html,
 body {
-  font-family: 'general', sans-serif;
+  font-family: "Georama", sans-serif;
   width: 100dvw;
   overflow-x: hidden;
 }
@@ -29,11 +55,13 @@ body {
   --color-primary-foreground: var(--color-white);
   --color-primary-hover: var(--color-violet-brand-300);
 
-  --color-secondary: var(--color-violet-brand-100);
-  --color-secondary-foreground: var(--color-violet-brand-900);
+  .transform-style-preserve-3d {
+    transform-style: preserve-3d;
+  }
 
-  --color-muted: var(--color-violet-brand-400);
-  --color-muted-foreground: var(--color-white);
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
 
 
   --color-border: var(--color-violet-brand-100);
@@ -56,19 +84,37 @@ html::-webkit-scrollbar-thumb {
 use this like text-foreground, bg-primary, text-primary-foreground, bg-muted, text-muted-foreground, border-border, text-secondary, bg-background-alt
 */
 
-@layer base {
-  body {
-    @apply bg-foreground text-background;
-    -webkit-font-smoothing: antialiased;
+  .animate-view-bounce {
+    animation: view-bounce 1.4s ease-in-out infinite;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    @apply text-background font-bold;
+  @keyframes rise-up {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
   }
-}
 
+  .animate-rise {
+    animation: rise-up 0.8s ease-out forwards;
+  }
 
-@layer components {
-  /* put here styles of components files */
+  @keyframes type-in {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+      text-shadow: none;
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+      text-shadow:
+        0 0 10px rgba(158,114,195,0.7),
+        0 0 20px rgba(158,114,195,0.5),
+        0 0 40px rgba(158,114,195,0.3);
+    }
+  }
 
+  .animate-type {
+    animation: type-in 0.6s ease-out forwards;
+    opacity: 0;
+  }
 }
