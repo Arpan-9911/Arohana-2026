@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import {Link} from "react-router-dom"
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Button}from "../components/Button"
+import { Button } from "../components/Button";
 
 const HeroSection = () => {
   return (
     <section className="relative w-full h-screen overflow-hidden">
       {/* image Background */}
-      <div className="absolute inset-0 w-full h-full">
+      <div className="absolute inset-0 w-full h-full ">
         <img
-        src="./images/japan-1.png"
+          src="./images/japan-1.png"
           loading="lazy"
           className="w-full h-full object-cover"
         />
-        
+
         {/* Overlay for better text readability */}
         <div className="absolute inset-0 bg-black/40" />
       </div>
@@ -33,7 +33,7 @@ const HeroSection = () => {
             viewBox="0 0 2430 1012.5"
             className="w-full h-auto drop-shadow-2xl filter brightness-110"
             style={{
-              filter: "drop-shadow(0 0 20px rgba(194, 24, 91, 0.6))"
+              filter: "drop-shadow(0 0 20px rgba(194, 24, 91, 0.6))",
             }}
           >
             <image href="/aarohana.svg" width="2430" height="1012.5" />
@@ -55,12 +55,10 @@ const HeroSection = () => {
           transition={{ duration: 1, delay: 0.9, ease: "easeOut" }}
           className="flex flex-col sm:flex-row gap-6 items-center"
         >
-          <Button
-          >
-           <Link to="/login"> Login</Link>
+          <Button>
+            <Link to="/login"> Login</Link>
           </Button>
-          <Button 
-          >
+          <Button>
             <Link to="/signup"> SignUp</Link>
           </Button>
         </motion.div>

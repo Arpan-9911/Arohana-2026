@@ -63,7 +63,7 @@ export default function FAQ() {
   const [openId, setOpenId] = useState(null);
 
   return (
-    <section className="relative w-full py-20 px-4 sm:px-6 lg:px-8 bg-linear-to-b from-[#050505] via-[#0f0520] to-[#050505] overflow-hidden">
+    <section id="faq" className="relative w-full py-20 px-4 sm:px-6 lg:px-8 bg-linear-to-b from-[#050505] via-[#0f0520] to-[#050505] overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-40 right-20 w-72 h-72 bg-[#F48FB1]/5 rounded-full blur-3xl animate-pulse" />
@@ -161,25 +161,6 @@ export default function FAQ() {
               </div>
             </motion.div>
           ))}
-        </motion.div>
-
-        {/* Still have questions CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="mt-16 pt-12 border-t border-white/10 text-center"
-        >
-          <p className="text-white/60 mb-6">
-            Didn't find your answer? Reach out to our team!
-          </p>
-          <a
-            href=""
-            className="inline-block px-8 py-3 rounded-xl bg-linear-to-r from-[#D4AF37] to-[#F48FB1] text-black font-semibold hover:shadow-lg hover:shadow-[#D4AF37]/50 transition-all duration-300 hover:scale-105"
-          >
-            Contact Us
-          </a>
         </motion.div>
       </div>
     </section>
