@@ -1,10 +1,16 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Zap } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
-const navLinks = ["Home", "About", "Services", "Contact"];
+const navLinks = [
+  { label: "Home", href: "/" },
+  { label: "Events", href: "/events" },
+  { label: "Dashboard", href: "/dashboard" },
+  { label: "Sponsors", href: "#sponsors" },
+  { label: "FAQ", href: "#faq" },
+];
 
-const Navbar2 = () => {
+const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -13,22 +19,19 @@ const Navbar2 = () => {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6 }}
       className="
-        fixed top-0 w-full z-50 
-        bg-[rgb(20,0,31)] 
-        backdrop-blur-lg border-b border-white/10 
-        shadow-[0_8px_32px_rgba(0,0,0,0.3)]
+        fixed top-0 w-full z-50
+        bg-transparent
+        backdrop-blur-lg
+        border-b border-white/10
       "
     >
-      <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-
+      <div className="max-w-8xl  px-4 flex justify-between items-center">
         {/* Logo */}
-        <motion.a
-          whileHover={{ scale: 1.05 }}
-          href="#"
-          className="flex items-center gap-2 text-white text-xl font-bold tracking-wide"
-        >
-          Aarohana
-        </motion.a>
+        <motion.img
+          src="/aarohana.svg"
+          width={250}
+          className="block h-25 object-contain"
+        />
 
         {/* Desktop Menu */}
         <ul className="hidden md:flex gap-4">
@@ -39,16 +42,16 @@ const Navbar2 = () => {
               transition={{ type: "spring", stiffness: 300 }}
             >
               <a
-                href={`#${link.toLowerCase()}`}
+                href={link.href}
                 className="
-                  text-white/80 hover:text-white 
-                  px-4 py-2 rounded-xl relative transition
-                  before:absolute before:inset-0 before:rounded-xl 
-                  before:bg-linear-to-r before:from-yellow-400/20 before:to-purple-400/20 
-                  before:opacity-0 hover:before:opacity-100 before:transition
-                "
+              text-white/80 hover:text-white
+                px-4 py-2 rounded-xl relative transition
+                before:absolute before:inset-0 before:rounded-xl
+                before:bg-linear-to-r before:from-yellow-400/20 before:to-purple-400/20
+                before:opacity-0 hover:before:opacity-100 before:transition
+              "
               >
-                {link}
+                {link.label}
               </a>
             </motion.li>
           ))}
@@ -72,22 +75,26 @@ const Navbar2 = () => {
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.4 }}
             className="
-              md:hidden flex flex-col 
-              bg-[rgba(20,20,40,0.95)] backdrop-blur-lg 
-              border-t border-white/10 px-6 py-3
+              md:hidden flex flex-col
+              bg-[rgba(20,0,31,0.9)]
+              backdrop-blur-lg
+              border-t border-white/10
+              px-6 py-3
             "
           >
             {navLinks.map((link, i) => (
               <motion.a
                 key={i}
-                href={`#${link.toLowerCase()}`}
+                href={link.href}
                 className="
-                  text-white/80 hover:text-white 
-                  py-3 rounded-lg transition hover:bg-yellow-300/10
+                text-white/80 hover:text-white
+                  py-3 rounded-lg transition
+                hover:bg-yellow-300/10
                 "
                 whileHover={{ x: 5 }}
+                onClick={() => setIsOpen(false)}
               >
-                {link}
+                {link.label}
               </motion.a>
             ))}
           </motion.div>
@@ -97,4 +104,4 @@ const Navbar2 = () => {
   );
 };
 
-export default Navbar2;
+export default Navigation;
