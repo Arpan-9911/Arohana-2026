@@ -8,21 +8,19 @@ export default function AuthLayout({
 }) {
   return (
     <div className="
-      min-h-screen
-      bg-[radial-gradient(circle_at_top,#1a0f3d,#070313_60%)]
+      min-h-dvh
+      bg-[radial-gradient(circle_at_top,#d624c7,#070313_60%)]
       flex items-center justify-center
       p-6 text-lemon-chiffon
       relative overflow-hidden
     ">
-      <div className="absolute -top-20 -left-20 w-96 h-96 bg-primary/50 blur-[120px] rounded-full"/>
-      <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-violet-brand-300/50 blur-[120px] rounded-full"/>
+      <div className="absolute top-100 -left-20 w-96 h-96 bg-pink-400 blur-[140px] rounded-full"/>
+      <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-pink-400 blur-[120px] rounded-full"/>
+      <div className="absolute bottom-40 w-96 h-96 bg-pink-400 blur-[120px] rounded-full"/>
 
-      {/* Fixed width container: max-w-6xl ensures it doesn't get too wide.
-        grid-cols-1 for mobile, grid-cols-2 for desktop.
-      */}
-      <div className="bg-[#0d0822]/80
+      <div className="
           backdrop-blur-2xl
-          border border-white/10
+          border border-white/20
           shadow-[0_30px_80px_rgba(0,0,0,0.7)]
           rounded-4xl overflow-hidden w-full max-w-5xl">
         <motion.div
@@ -60,7 +58,7 @@ export default function AuthLayout({
             <div className="relative w-full aspect-square max-w-87.5">
               <div className="absolute inset-0 bg-secondary-foreground/50 rounded-full blur-3xl" />
               <img
-                src="./login.jpeg"
+                src="login.jpeg"
                 alt="hyperion"
                 className="relative z-10 w-full h-full object-cover rounded-full border-4 border-secondary-foreground"
               />

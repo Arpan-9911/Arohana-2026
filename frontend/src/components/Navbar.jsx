@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { NavHashLink } from "react-router-hash-link";
 
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Events", href: "/events" },
   { label: "Dashboard", href: "/dashboard" },
-  { label: "Sponsors", href: "#sponsors" },
-  { label: "FAQ", href: "#faq" },
+  { label: "Sponsors", href: "/#sponsors" },
+  { label: "FAQ", href: "/#faq" },
 ];
 
 const Navigation = () => {
@@ -35,41 +36,46 @@ const Navigation = () => {
 
         {/* Desktop Menu */}
         <ul className="hidden md:flex gap-4">
-          {navLinks.map((link, i) => (
-            <motion.li
-              key={i}
-              whileHover={{ scale: 1.1, y: -2 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
-              {link.href.startsWith("#") ? (
-                <a
-                  href={link.href}
-                  className="
-      text-white/80 hover:text-white
-      px-4 py-2 rounded-xl relative transition
-      before:absolute before:inset-0 before:rounded-xl
-      before:bg-linear-to-r before:from-yellow-400/20 before:to-purple-400/20
-      before:opacity-0 hover:before:opacity-100 before:transition
-    "
-                >
-                  {link.label}
-                </a>
-              ) : (
-                <Link
-                  to={link.href}
-                  className="
-      text-white/80 hover:text-white
-      px-4 py-2 rounded-xl relative transition
-      before:absolute before:inset-0 before:rounded-xl
-      before:bg-linear-to-r before:from-yellow-400/20 before:to-purple-400/20
-      before:opacity-0 hover:before:opacity-100 before:transition
-    "
-                >
-                  {link.label}
-                </Link>
-              )}
-            </motion.li>
-          ))}
+          {navLinks.map((link) => {
+            const isHashLink = link.href.includes("#");
+
+            return (
+              <motion.li
+                key={link.href}
+                whileHover={{ scale: 1.1, y: -2 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                {isHashLink ? (
+                  <NavHashLink
+                    smooth
+                    to={link.href}
+                    className="
+              text-white/80 hover:text-white
+              px-4 py-2 rounded-xl relative transition
+              before:absolute before:inset-0 before:rounded-xl
+              before:bg-linear-to-r before:from-yellow-400/20 before:to-purple-400/20
+              before:opacity-0 hover:before:opacity-100 before:transition
+            "
+                  >
+                    {link.label}
+                  </NavHashLink>
+                ) : (
+                  <Link
+                    to={link.href}
+                    className="
+              text-white/80 hover:text-white
+              px-4 py-2 rounded-xl relative transition
+              before:absolute before:inset-0 before:rounded-xl
+              before:bg-linear-to-r before:from-yellow-400/20 before:to-purple-400/20
+              before:opacity-0 hover:before:opacity-100 before:transition
+            "
+                  >
+                    {link.label}
+                  </Link>
+                )}
+              </motion.li>
+            );
+          })}
         </ul>
 
         {/* Mobile Menu Toggle */}
@@ -97,42 +103,42 @@ const Navigation = () => {
         px-6 py-3
       "
           >
-            {navLinks.map((link, i) =>
-              link.href.startsWith("#") ? (
-                /* Anchor links (Sponsors, FAQ) */
-                <motion.a
-                  key={i}
-                  href={link.href}
-                  className="
-              text-white/80 hover:text-white
-              py-3 rounded-lg transition
-              hover:bg-yellow-300/10
-            "
-                  whileHover={{ x: 5 }}
-                  onClick={() => setIsOpen(false)}
-                >
-                  {link.label}
-                </motion.a>
-              ) : (
-                /* Router links (Home, Events, Dashboard) */
+            {navLinks.map((link) => {
+              const isHashLink = link.href.includes("#");
+
+              return (
                 <motion.div
-                  key={i}
+                  key={link.href}
                   whileHover={{ x: 5 }}
                   onClick={() => setIsOpen(false)}
                 >
-                  <Link
-                    to={link.href}
-                    className="
-                block text-white/80 hover:text-white
-                py-3 rounded-lg transition
-                hover:bg-yellow-300/10
-              "
-                  >
-                    {link.label}
-                  </Link>
+                  {isHashLink ? (
+                    <NavHashLink
+                      smooth
+                      to={link.href}
+                      className="
+                  block text-white/80 hover:text-white
+                  py-3 rounded-lg transition
+                  hover:bg-yellow-300/10
+                "
+                    >
+                      {link.label}
+                    </NavHashLink>
+                  ) : (
+                    <Link
+                      to={link.href}
+                      className="
+                  block text-white/80 hover:text-white
+                  py-3 rounded-lg transition
+                  hover:bg-yellow-300/10
+                "
+                    >
+                      {link.label}
+                    </Link>
+                  )}
                 </motion.div>
-              ),
-            )}
+              );
+            })}
           </motion.div>
         )}
       </AnimatePresence>
