@@ -30,7 +30,7 @@ const HeroSection = () => {
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 2430 1012.5"
+            viewBox="0 0 2430 800"
             className="w-full h-auto drop-shadow-2xl filter brightness-110"
             style={{
               filter: "drop-shadow(0 0 20px rgba(194, 24, 91, 0.6))",
@@ -39,15 +39,6 @@ const HeroSection = () => {
             <image href="/aarohana.svg" width="2430" height="1012.5" />
           </svg>
         </motion.div>
-
-        {/* <motion.p
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.7, ease: "easeOut" }}
-          className="text-lg md:text-xl text-foreground/90 mb-12 max-w-3xl font-light"
-        >
-          hello yaha par kuch likhna ho toh likh dena
-        </motion.p> */}
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -59,7 +50,7 @@ const HeroSection = () => {
             <Link to="/login"> Login</Link>
           </Button>
           <Button>
-            <Link to="/signup"> SignUp</Link>
+            <Link to="/events"> Explore Events</Link>
           </Button>
         </motion.div>
       </div>

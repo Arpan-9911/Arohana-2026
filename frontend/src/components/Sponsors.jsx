@@ -137,22 +137,6 @@ export default function Sponsors() {
             </motion.div>
           ))}
         </motion.div>
-
-        {/* Call to Action */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="text-center"
-        >
-          <p className="text-white/50 mb-6">
-            Interested in sponsoring Aarohana'26?
-          </p>
-          <button className="px-8 py-3 rounded-xl bg-linear-to-r from-[#C2185B] to-[#F48FB1] text-white font-semibold hover:shadow-lg hover:shadow-[#C2185B]/50 transition-all duration-300 hover:scale-105">
-            Become a Sponsor
-          </button>
-        </motion.div>
       </div>
     </section>
   );
