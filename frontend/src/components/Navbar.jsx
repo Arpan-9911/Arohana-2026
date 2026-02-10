@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 
-
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Events", href: "/events" },
@@ -27,12 +26,11 @@ const Navigation = () => {
         border-b border-white/10
       "
     >
-      <div className="max-w-8xl  px-4 flex justify-between items-center">
+      <div className="max-w-8xl px-4 flex justify-between items-center">
         {/* Logo */}
         <motion.img
           src="/aarohana.svg"
-          width={250}
-          className="block h-25 object-contain"
+          className="block md:h-25 h-15 object-contain"
         />
 
         {/* Desktop Menu */}
@@ -70,76 +68,74 @@ const Navigation = () => {
                   {link.label}
                 </Link>
               )}
-
             </motion.li>
           ))}
         </ul>
 
-       {/* Mobile Menu Toggle */}
-<button
-  onClick={() => setIsOpen(!isOpen)}
-  className="md:hidden text-white text-2xl hover:rotate-90 transition"
->
-  {isOpen ? <X /> : <Menu />}
-</button>
-</div>
+        {/* Mobile Menu Toggle */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="md:hidden text-white text-2xl hover:rotate-90 transition"
+        >
+          {isOpen ? <X /> : <Menu />}
+        </button>
+      </div>
 
-{/* Mobile Menu */}
-<AnimatePresence>
-  {isOpen && (
-    <motion.div
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: "auto" }}
-      exit={{ opacity: 0, height: 0 }}
-      transition={{ duration: 0.4 }}
-      className="
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.4 }}
+            className="
         md:hidden flex flex-col
         bg-[rgba(20,0,31,0.9)]
         backdrop-blur-lg
         border-t border-white/10
         px-6 py-3
       "
-    >
-      {navLinks.map((link, i) =>
-        link.href.startsWith("#") ? (
-          /* Anchor links (Sponsors, FAQ) */
-          <motion.a
-            key={i}
-            href={link.href}
-            className="
+          >
+            {navLinks.map((link, i) =>
+              link.href.startsWith("#") ? (
+                /* Anchor links (Sponsors, FAQ) */
+                <motion.a
+                  key={i}
+                  href={link.href}
+                  className="
               text-white/80 hover:text-white
               py-3 rounded-lg transition
               hover:bg-yellow-300/10
             "
-            whileHover={{ x: 5 }}
-            onClick={() => setIsOpen(false)}
-          >
-            {link.label}
-          </motion.a>
-        ) : (
-          /* Router links (Home, Events, Dashboard) */
-          <motion.div
-            key={i}
-            whileHover={{ x: 5 }}
-            onClick={() => setIsOpen(false)}
-          >
-            <Link
-              to={link.href}
-              className="
+                  whileHover={{ x: 5 }}
+                  onClick={() => setIsOpen(false)}
+                >
+                  {link.label}
+                </motion.a>
+              ) : (
+                /* Router links (Home, Events, Dashboard) */
+                <motion.div
+                  key={i}
+                  whileHover={{ x: 5 }}
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Link
+                    to={link.href}
+                    className="
                 block text-white/80 hover:text-white
                 py-3 rounded-lg transition
                 hover:bg-yellow-300/10
               "
-            >
-              {link.label}
-            </Link>
+                  >
+                    {link.label}
+                  </Link>
+                </motion.div>
+              ),
+            )}
           </motion.div>
-        )
-      )}
-    </motion.div>
-  )}
-</AnimatePresence>
-
+        )}
+      </AnimatePresence>
     </motion.nav>
   );
 };

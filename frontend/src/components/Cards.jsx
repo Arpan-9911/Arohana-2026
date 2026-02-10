@@ -1,9 +1,10 @@
 import { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react"
+import { Link } from "react-router-dom";
 
 const GANGS = [
-  { id: 1, title: "TECHWHIZ", frontImg: "images/blue.jpg", bgImg: "images/society.jpg" },
+  { id: 1, title: "TechWhiz", frontImg: "images/blue.jpg", bgImg: "images/society.jpg" },
   { id: 2, title: "CHANSKYA", frontImg: "images/blue.jpg", bgImg: "images/society.jpg" },
   { id: 3, title: "CONUNDRUM", frontImg: "images/blue.jpg", bgImg: "images/society.jpg" },
   { id: 4, title: "DIVERSITY", frontImg: "images/blue.jpg", bgImg: "images/society.jpg" },
@@ -104,9 +105,9 @@ const Card = ({ gang }) => {
           <div className="h-0.5 grow bg-white/10 overflow-hidden">
             <div className="h-full bg-pink-600 w-full sm:w-0 group-hover:w-full transition-all duration-1000" />
           </div>
-          <div className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center bg-cyan-500 sm:bg-gray-700  sm:group-hover:bg-cyan-500 sm:group-hover:border-cyan-500 transition-all group-hover:rotate-45">
+          <Link to={`/events?society=${gang.title}`} className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center bg-cyan-500 sm:bg-gray-700  sm:group-hover:bg-cyan-500 sm:group-hover:border-cyan-500 transition-all group-hover:rotate-45">
             <ArrowUpRight />
-          </div>
+          </Link>
         </div>
       </div>
 
