@@ -7,11 +7,11 @@ export default function Signup() {
   return (
     <AuthLayout
       reverse
-      title="Join the Pack!"
+      image="icon-2.svg"
       subtitle={
         <>
           <span>Already have an account? </span>
-          <Link to="/login" className="font-semibold text-background-alt">
+          <Link to="/login" className="font-semibold text-white">
             Sign in
           </Link>
         </>

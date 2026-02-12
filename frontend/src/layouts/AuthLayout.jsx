@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 
 export default function AuthLayout({
-  title,
+  image,
   subtitle,
   children,
   reverse = false,
@@ -9,17 +9,20 @@ export default function AuthLayout({
   return (
     <div className="
       min-h-dvh
-      bg-[radial-gradient(circle_at_top,#d624c7,#070313_60%)]
+      bg-[radial-gradient(circle_at_top,#f6339a,#070313_70%)]
+      filter:blur(300px)
       flex items-center justify-center
       p-6 text-lemon-chiffon
       relative overflow-hidden
     ">
-      <div className="absolute top-100 -left-20 w-96 h-96 bg-pink-400 blur-[140px] rounded-full"/>
-      <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-pink-400 blur-[120px] rounded-full"/>
-      <div className="absolute bottom-40 w-96 h-96 bg-pink-400 blur-[120px] rounded-full"/>
+      <div className="absolute top-100 -left-20 w-96 h-96 bg-pink-500 blur-[170px] rounded-full"/>
+      <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-pink-500 blur-[170px] rounded-full"/>
+      <div className="absolute bottom-40 w-96 h-96 bg-violet-500 blur-[150px] rounded-full"/>
 
       <div className="
           backdrop-blur-2xl
+          mt-10
+          md:mt-25
           border border-white/20
           shadow-[0_30px_80px_rgba(0,0,0,0.7)]
           rounded-4xl overflow-hidden w-full max-w-5xl">
@@ -37,13 +40,13 @@ export default function AuthLayout({
           {/* FORM SIDE */}
           <div
             className={`
-            flex flex-col justify-center p-6 md:p-16 py-10 backdrop-blur-xl 
+            flex flex-col justify-center p-6 md:p-7 py-10 backdrop-blur-xl 
             ${reverse ? "md:order-2" : "md:order-1"}
           `}
           >
             <div className="max-w-md mx-auto w-full">
-              <h2 className="text-4xl font-bold uppercase mb-2">{title}</h2>
-              <p className="mb-8 text-gray-400">{subtitle}</p>
+              <img src={image}  className="w-200 md:w-80 mx-auto"/>
+              <p className="mb-8 text-gray-400 text-center">{subtitle}</p>
               {children}
             </div>
           </div>
