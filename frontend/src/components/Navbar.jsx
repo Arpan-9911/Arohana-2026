@@ -36,46 +36,41 @@ const Navigation = () => {
 
         {/* Desktop Menu */}
         <ul className="hidden md:flex gap-4">
-          {navLinks.map((link) => {
-            const isHashLink = link.href.includes("#");
-
-            return (
-              <motion.li
-                key={link.href}
-                whileHover={{ scale: 1.1, y: -2 }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                {isHashLink ? (
-                  <NavHashLink
-                    smooth
-                    to={link.href}
-                    className="
-              text-white/80 hover:text-white
-              px-4 py-2 rounded-xl relative transition
-              before:absolute before:inset-0 before:rounded-xl
-              before:bg-linear-to-r before:from-yellow-400/20 before:to-purple-400/20
-              before:opacity-0 hover:before:opacity-100 before:transition
-            "
-                  >
-                    {link.label}
-                  </NavHashLink>
-                ) : (
-                  <Link
-                    to={link.href}
-                    className="
-              text-white/80 hover:text-white
-              px-4 py-2 rounded-xl relative transition
-              before:absolute before:inset-0 before:rounded-xl
-              before:bg-linear-to-r before:from-yellow-400/20 before:to-purple-400/20
-              before:opacity-0 hover:before:opacity-100 before:transition
-            "
-                  >
-                    {link.label}
-                  </Link>
-                )}
-              </motion.li>
-            );
-          })}
+          {navLinks.map((link, i) => (
+            <motion.li
+              key={i}
+              whileHover={{ scale: 1.1, y: -2 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              {link.href.startsWith("#") ? (
+                <NavHashLink
+                  to={link.href}
+                  className="
+      text-white/80 hover:text-white
+      px-4 py-2 rounded-xl relative transition
+      before:absolute before:inset-0 before:rounded-xl
+      before:bg-linear-to-r before:from-yellow-400/20 before:to-purple-400/20
+      before:opacity-0 hover:before:opacity-100 before:transition
+    "
+                >
+                  {link.label}
+                </NavHashLink>
+              ) : (
+                <Link
+                  to={link.href}
+                  className="
+      text-white/80 hover:text-white
+      px-4 py-2 rounded-xl relative transition
+      before:absolute before:inset-0 before:rounded-xl
+      before:bg-linear-to-r before:from-yellow-400/20 before:to-purple-400/20
+      before:opacity-0 hover:before:opacity-100 before:transition
+    "
+                >
+                  {link.label}
+                </Link>
+              )}
+            </motion.li>
+          ))}
         </ul>
 
         {/* Mobile Menu Toggle */}
@@ -103,42 +98,42 @@ const Navigation = () => {
         px-6 py-3
       "
           >
-            {navLinks.map((link) => {
-              const isHashLink = link.href.includes("#");
-
-              return (
-                <motion.div
-                  key={link.href}
+            {navLinks.map((link, i) =>
+              link.href.startsWith("#") ? (
+                /* Anchor links (Sponsors, FAQ) */
+                <motion.NavHashLink
+                  key={i}
+                  to={link.href}
+                  className="
+              text-white/80 hover:text-white
+              py-3 rounded-lg transition
+              hover:bg-yellow-300/10
+            "
                   whileHover={{ x: 5 }}
                   onClick={() => setIsOpen(false)}
                 >
-                  {isHashLink ? (
-                    <NavHashLink
-                      smooth
-                      to={link.href}
-                      className="
-                  block text-white/80 hover:text-white
-                  py-3 rounded-lg transition
-                  hover:bg-yellow-300/10
-                "
-                    >
-                      {link.label}
-                    </NavHashLink>
-                  ) : (
-                    <Link
-                      to={link.href}
-                      className="
-                  block text-white/80 hover:text-white
-                  py-3 rounded-lg transition
-                  hover:bg-yellow-300/10
-                "
-                    >
-                      {link.label}
-                    </Link>
-                  )}
+                  {link.label}
+                </motion.NavHashLink>
+              ) : (
+                /* Router links (Home, Events, Dashboard) */
+                <motion.div
+                  key={i}
+                  whileHover={{ x: 5 }}
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Link
+                    to={link.href}
+                    className="
+                block text-white/80 hover:text-white
+                py-3 rounded-lg transition
+                hover:bg-yellow-300/10
+              "
+                  >
+                    {link.label}
+                  </Link>
                 </motion.div>
-              );
-            })}
+              ),
+            )}
           </motion.div>
         )}
       </AnimatePresence>
