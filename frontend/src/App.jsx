@@ -6,6 +6,7 @@ import Events from "./pages/Events";
 import Dashboard from "./pages/Dashboard";
 import Pass from "./pages/Pass";
 import NotFound from "./pages/NotFound";
+import EventDetails from "./pages/EventDetails";
 
 export default function App() {
   return (
@@ -18,9 +19,7 @@ export default function App() {
       <Route path="/dashboard" element={<Dashboard />} />
 
       <Route path="/events" element={<Events />} />
-
-      {/* events/:id */}
-      {/* <Route path="/event/:id" element={< />} /> */}
+      <Route path="/events/:id" element={<EventDetails/>}/>
 
       <Route path="/pass/:qrToken" element={<Pass />} />
 
