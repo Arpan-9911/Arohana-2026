@@ -330,7 +330,7 @@ const Dashboard = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 py-16 md:py-28">
+      <div className="relative z-10 py-16 md:py-28 max-w-7xl w-full md:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -347,7 +347,7 @@ const Dashboard = () => {
         </motion.div>
 
         {/* Profile Section */}
-        <div className="mb-12 max-w-4xl">
+        <div className="mb-12 max-w-7xl">
           <ProfileCard
             user={dashboardData.user}
             isLoading={isLoading}
