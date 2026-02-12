@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link, useParams } from "react-router-dom"
 import { Loader2 } from "lucide-react"
-import { motion,AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 
 export default function EventDetails() {
   const { id } = useParams();
@@ -10,7 +10,6 @@ export default function EventDetails() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState("create");
 
-  // backend se replace kar dena
   const EVENTS = {
     day1: [
       {
@@ -115,7 +114,7 @@ export default function EventDetails() {
         ],
       },
       {
-        id: "concert",
+        id: "photowalk",
         name: "Arohana Night Concert",
         society: "TechWhiz",
         type: "solo",
@@ -149,7 +148,6 @@ export default function EventDetails() {
     }
   }, [id, navigate]);
 
-  // handler
   const handleRegisterClick = () => {
     if (event.type === "group") {
       setIsModalOpen(true);
@@ -160,69 +158,81 @@ export default function EventDetails() {
 
   if (!event) {
     return (<div className="min-h-screen bg-foreground flex items-center justify-center text-white">
-      <Loader2 />
+      <Loader2 className="animate-spin" />
     </div>);
   }
 
   const isMultiRound = event.rounds && event.rounds.length > 1;
 
   return (
-    <section className="relative w-full min-h-screen bg-[#0a0a0a] text-white overflow-y-auto py-10 px-4 flex justify-center md:mt-20">
+    <section className="relative w-full min-h-screen bg-[#0a0a0a] text-white overflow-y-auto py-10 px-4 flex justify-center md:items-center md:pt-30">
       {/* Background Layers */}
       <img src="/events-bg-top.png" alt="" className="fixed inset-0 w-full h-full object-cover opacity-20 pointer-events-none" />
       <div className="fixed inset-0 bg-linear-to-b from-black/60 via-black/80 to-[#0a0a0a] pointer-events-none" />
 
-      {/* Main Content Container */}
-      <div className="relative z-10 w-full max-w-3xl flex flex-col animate-fade-in-up">
+      <div className="relative z-10 w-full max-w-3xl md:max-w-6xl flex flex-col animate-fade-in-up">
 
-        <Link to="/events" className="text-pink-400 hover:text-pink-300 font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
+        <Link to="/events" className="text-pink-400 hover:text-pink-300 font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2 w-fit">
           ← Back to Events
         </Link>
 
-        <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+        <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl grid grid-cols-1 md:grid-cols-2">
 
-          <div className="w-full h-64 md:h-80 relative">
-            <img src={event.image} alt={event.name} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-linear-to-t from-[#121212] to-transparent" />
-            <div className="absolute top-4 right-4 bg-pink-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-lg">
-              {event.type}
-            </div>
-          </div>
-
-          <div className="p-6 md:p-10 bg-[#121212]">
-
-            <div className="mb-8">
-              <h4 className="text-pink-500 font-bold tracking-widest uppercase text-xs mb-1">{event.society}</h4>
-              <h1 className="text-3xl md:text-4xl font-black text-white mb-4">{event.name}</h1>
-              <div className="flex flex-wrap gap-3">
-                <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-md text-xs text-gray-300">🕒 {event.time}</span>
-                <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-md text-xs text-gray-300">📍 {event.venue}</span>
+          <div className="flex flex-col h-full bg-[#121212] md:border-r border-white/10">
+            {/* Image Section */}
+            <div className="w-full h-64 md:h-80 relative shrink-0">
+              <img src={event.image} alt={event.name} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-linear-to-t from-[#121212] via-transparent to-transparent" />
+              <div className="absolute top-4 right-4 bg-pink-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-lg">
+                {event.type}
               </div>
             </div>
 
-            {/* About */}
-            <div className="mb-8">
-              <h3 className="text-md font-bold text-white uppercase tracking-wider mb-2 border-l-2 border-pink-500 pl-3">About</h3>
-              <p className="text-gray-400 text-md leading-relaxed">{event.about}</p>
-            </div>
+            {/* Description Content */}
+            <div className="p-6 md:p-8 flex flex-col grow">
+              <div className="mb-6">
+                <h4 className="text-pink-500 font-bold tracking-widest uppercase text-xs mb-1">{event.society}</h4>
+                <h1 className="text-3xl md:text-5xl font-black text-white mb-4 leading-tight">{event.name}</h1>
+                <div className="flex flex-wrap gap-3">
+                  <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-md text-xs text-gray-300">🕒 {event.time}</span>
+                  <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-md text-xs text-gray-300">📍 {event.venue}</span>
+                </div>
+              </div>
 
-            {/* General Rules  */}
+              <div className="mb-8">
+                <h3 className="text-md font-bold text-white uppercase tracking-wider mb-2 border-l-2 border-pink-500 pl-3">About</h3>
+                <p className="text-gray-400 text-sm md:text-base leading-relaxed">{event.about}</p>
+              </div>
+
+              <div className="mt-auto hidden md:block pt-6">
+                <button onClick={handleRegisterClick} className="w-full bg-linear-to-r from-pink-600 to-purple-600 hover:scale-[1.02] text-white font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(236,72,153,0.3)] transition-all uppercase tracking-widest text-md">
+                  Register Now
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6 md:p-8 bg-[#121212] md:bg-white/5 flex flex-col h-full overflow-y-auto custom-scrollbar">
+
+            {/* General Rules */}
             {event.generalRules && (
               <div className="mb-8">
-                <h3 className="text-md font-bold text-white uppercase tracking-wider mb-3 border-l-2 border-pink-500 pl-3">General Rules</h3>
-                <ul className="space-y-2">
+                <h3 className="text-md font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-pink-500 pl-3">General Rules</h3>
+                <ul className="space-y-3 bg-white/5 p-4 rounded-xl border border-white/5">
                   {event.generalRules.map((r, i) => (
-                    <li key={i} className="text-md text-gray-400 flex gap-2">
-                      <span className="text-pink-500">•</span> {r}
+                    <li key={i} className="text-sm text-gray-300 flex gap-3 items-start">
+                      <span className="text-pink-500 mt-1">•</span>
+                      <span>{r}</span>
                     </li>
                   ))}
                 </ul>
               </div>
             )}
 
-            <div className="mb-10">
+            {/* Rounds & Timeline */}
+            <div className="mb-4 grow">
               <h3 className="text-md font-bold text-white uppercase tracking-wider mb-6 border-l-2 border-pink-500 pl-3">
-                {isMultiRound ? "Event Timeline & Round Rules" : "Instructions & Rules"}
+                {isMultiRound ? "Event Timeline & Rounds" : "Instructions"}
               </h3>
 
               <div className="space-y-8 relative">
@@ -230,24 +240,29 @@ export default function EventDetails() {
 
                 {event.rounds.map((round, idx) => (
                   <div key={idx} className={`relative ${isMultiRound ? 'md:pl-12' : ''}`}>
-                    {/* Round Bubble */}
                     {isMultiRound && (
-                      <div className="absolute left-0 top-0 w-8 h-8 rounded-full bg-pink-600 border-4 border-[#121212] items-center justify-center text-[10px] font-bold hidden md:flex">
+                      <div className="absolute left-0 top-0 w-8 h-8 rounded-full bg-pink-600 border-4 border-[#121212] items-center justify-center text-[10px] font-bold hidden md:flex shadow-lg z-10">
                         {idx + 1}
                       </div>
                     )}
 
-                    <div className="bg-white/5 border border-white/10 p-5 rounded-2xl">
-                      <h4 className="text-white font-bold text-md mb-1">{round.name}</h4>
+                    <div className="bg-white/5 border border-white/10 p-5 rounded-2xl hover:border-pink-500/30 transition-colors">
+                      <div className="flex items-center gap-3 mb-2">
+                        {isMultiRound && (
+                          <span className="md:hidden bg-pink-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Round {idx + 1}</span>
+                        )}
+                        <h4 className="text-white font-bold text-md">{round.name}</h4>
+                      </div>
+
                       <p className="text-pink-400 text-xs mb-4 italic">{round.instruction}</p>
 
                       {/* Round Specific Rules */}
                       {round.rules && (
                         <div className="pt-3 border-t border-white/5">
-                          <p className="text-[15px] uppercase text-gray-500 font-bold mb-2">Round Rules:</p>
-                          <ul className="space-y-1.5">
+                          <p className="text-[10px] uppercase text-gray-500 font-bold mb-2 tracking-wider">Round Details:</p>
+                          <ul className="space-y-2">
                             {round.rules.map((rule, ridx) => (
-                              <li key={ridx} className="text-sm text-gray-300 flex gap-2 items-start">
+                              <li key={ridx} className="text-xs text-gray-300 flex gap-2 items-start">
                                 <span className="text-pink-500 mt-0.5">›</span> {rule}
                               </li>
                             ))}
@@ -260,10 +275,12 @@ export default function EventDetails() {
               </div>
             </div>
 
-            {/* Action Button */}
-            <button onClick={handleRegisterClick} className="w-full bg-linear-to-r from-pink-600 to-purple-600 hover:scale-[1.02] text-white font-bold py-4 rounded-xl shadow-lg transition-all uppercase tracking-widest text-md">
-              Register Now
-            </button>
+            <div className="md:hidden pt-6 mt-4 border-t border-white/10 sticky bottom-0 bg-[#121212] z-20 pb-2">
+              <button onClick={handleRegisterClick} className="w-full bg-linear-to-r from-pink-600 to-purple-600 hover:scale-[1.02] text-white font-bold py-4 rounded-xl shadow-lg transition-all uppercase tracking-widest text-md">
+                Register Now
+              </button>
+            </div>
+
           </div>
         </div>
       </div>
@@ -291,13 +308,12 @@ export default function EventDetails() {
               }}
               className="relative bg-[#1a1a1a] border border-white/10 w-full max-w-md rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]"
             >
-              {/* Tabs */}
               <div className="flex border-b border-white/5">
                 <button
                   onClick={() => setModalTab("create")}
                   className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest transition-all ${modalTab === "create"
-                      ? "text-pink-500 bg-white/5 border-b-2 border-pink-500"
-                      : "text-gray-500 hover:text-gray-300"
+                    ? "text-pink-500 bg-white/5 border-b-2 border-pink-500"
+                    : "text-gray-500 hover:text-gray-300"
                     }`}
                 >
                   Create Team
@@ -305,15 +321,14 @@ export default function EventDetails() {
                 <button
                   onClick={() => setModalTab("join")}
                   className={`flex-1 py-4 text-xs font-bold uppercase tracking-widest transition-all ${modalTab === "join"
-                      ? "text-pink-500 bg-white/5 border-b-2 border-pink-500"
-                      : "text-gray-500 hover:text-gray-300"
+                    ? "text-pink-500 bg-white/5 border-b-2 border-pink-500"
+                    : "text-gray-500 hover:text-gray-300"
                     }`}
                 >
                   Join Team
                 </button>
               </div>
 
-              {/* Form Content */}
               <div className="p-8">
                 <h2 className="text-xl font-bold text-white mb-2">
                   {modalTab === "create" ? "Start a New Team" : "Enter Team Code"}

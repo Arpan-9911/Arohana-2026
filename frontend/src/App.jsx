@@ -7,9 +7,12 @@ import Dashboard from "./pages/Dashboard";
 import Pass from "./pages/Pass";
 import NotFound from "./pages/NotFound";
 import EventDetails from "./pages/EventDetails";
+import ScrollToTop from "./components/ScrollToTop";
 
 export default function App() {
   return (
+    <>
+    <ScrollToTop />
     <Routes>
       <Route path="/" element={<Home />} />
 
@@ -27,5 +30,6 @@ export default function App() {
       <Route path="*" element={<NotFound />} />
 
     </Routes>
+    </>
   )
 }

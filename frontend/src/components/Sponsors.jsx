@@ -69,7 +69,7 @@ const itemVariants = {
 
 export default function Sponsors() {
   return (
-    <section id="sponsors" className="relative w-full py-20 px-4 sm:px-6 lg:px-8 bg-linear-to-b from-[#050505] via-[#0a0515] to-[#050505] overflow-hidden">
+    <section id="sponsors" className="relative w-full py-20 px-4 sm:px-6 lg:px-8 bg-linear-to-b from-[#050505] via-[#0a0515] to-[#050505] overflow-hidden scroll-mt-24">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-64 h-64 bg-[#C2185B]/5 rounded-full blur-3xl animate-pulse" />
