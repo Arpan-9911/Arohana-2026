@@ -6,27 +6,33 @@ import Events from "./pages/Events";
 import Dashboard from "./pages/Dashboard";
 import Pass from "./pages/Pass";
 import NotFound from "./pages/NotFound";
+import ScrollToTop from "./components/ScrollToTop";
+import Navigation from "./components/Navbar";
+import Footer from "./components/Footer";   
+
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
+    <> 
+      <ScrollToTop />
+      <Navigation /> 
 
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+      <div className="min-h-screen flex flex-col">
+        <div className="flex-1">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/pass/:qrToken" element={<Pass />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </div>
 
-      <Route path="/dashboard" element={<Dashboard />} />
-
-      <Route path="/events" element={<Events />} />
-
-      {/* events/:id */}
-      {/* <Route path="/event/:id" element={< />} /> */}
-
-      <Route path="/pass/:qrToken" element={<Pass />} />
-
-      {/* not found Route */}
-      <Route path="*" element={<NotFound />} />
-
-    </Routes>
-  )
+      
+        <Footer />
+      </div>
+    </>
+  );
 }

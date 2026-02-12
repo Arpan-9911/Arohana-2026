@@ -14,7 +14,7 @@ export default function AuthLayout({
       p-6 text-lemon-chiffon
       relative overflow-hidden
     ">
-      <div className="absolute -top-20 -left-20 w-96 h-96 bg-primary/50 blur-[120px] rounded-full"/>
+      <div className="absolute -top-30 -left-20 w-96 h-96 bg-primary/50 blur-[120px] rounded-full"/>
       <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-violet-brand-300/50 blur-[120px] rounded-full"/>
 
       {/* Fixed width container: max-w-6xl ensures it doesn't get too wide.
