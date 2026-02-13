@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 
 export default function AuthLayout({
-  title,
+  image,
   subtitle,
   children,
   reverse = false,
@@ -37,13 +37,13 @@ export default function AuthLayout({
           {/* FORM SIDE */}
           <div
             className={`
-            flex flex-col justify-center p-6 md:p-16 py-10 backdrop-blur-xl 
+            flex flex-col justify-center p-6 md:p-7 py-10 backdrop-blur-xl 
             ${reverse ? "md:order-2" : "md:order-1"}
           `}
           >
             <div className="max-w-md mx-auto w-full">
-              <h2 className="text-4xl font-bold uppercase mb-2">{title}</h2>
-              <p className="mb-8 text-gray-400">{subtitle}</p>
+              <img src={image}  className="w-200 md:w-80 mx-auto"/>
+              <p className="mb-8 text-gray-400 text-center">{subtitle}</p>
               {children}
             </div>
           </div>

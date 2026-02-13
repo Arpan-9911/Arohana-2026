@@ -10,7 +10,7 @@ export default function Login() {
       subtitle={
         <>
           <span>Don't have an account?{" "}</span>
-          <Link to="/signup" className="font-semibold text-background-alt">
+          <Link to="/signup" className="font-semibold text-white">
             Sign up
           </Link>
         </>
