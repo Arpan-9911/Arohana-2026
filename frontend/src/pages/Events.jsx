@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
-/* ------------------ DATA ------------------ */
 const EVENTS = {
   day1: [
     {
@@ -69,7 +68,6 @@ const EVENTS = {
   ],
 };
 
-/* ------------------ ANIMATED ITEM COMPONENT ------------------ */
 const TimelineItem = ({ children, className, side, isConcert }) => {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef(null);
@@ -147,10 +145,10 @@ export default function Events() {
       <div className="fixed bottom-0 left-0 w-full h-40 bg-linear-to-b from-transparent to-foreground" />
       <div className="z-10 w-full flex justify-center items-center mt-10">
         <img
-          src="/Events.svg"
+          src="/Events-new.svg"
           alt="Events Title"
           className={`
-            w-[50%] md:w-[30%] lg:w-[20%]
+            w-[60%] md:w-[30%] lg:w-[20%]
             transition-all duration-1000 ease-out md:mt-20 mt-10 mb-5
             ${heroLoaded ? "scale-100 opacity-100" : "scale-75 opacity-0"}
           `}
@@ -218,10 +216,9 @@ export default function Events() {
                   className={`
                     px-6 py-2 rounded-md text-sm font-semibold tracking-widest text-white
                     border transition-all duration-200 cursor-pointer
-                    ${
-                      active
-                        ? "bg-linear-to-r from-pink-500 to-pink-600"
-                        : "bg-white/10 border-white/20 hover:bg-white/20"
+                    ${active
+                      ? "bg-linear-to-r from-pink-500 to-pink-600"
+                      : "bg-white/10 border-white/20 hover:bg-white/20"
                     }
                   `}
                 >
@@ -290,9 +287,8 @@ export default function Events() {
 function EventCard({ event, isLeft }) {
   return (
     <div
-      className={`flex items-start md:gap-4 gap-2 max-md:flex-col ${
-        isLeft ? "md:flex-row-reverse md:text-right md:ml-auto" : "md:text-left"
-      }`}
+      className={`flex items-start md:gap-4 gap-2 max-md:flex-col ${isLeft ? "md:flex-row-reverse md:text-right md:ml-auto" : "md:text-left"
+        }`}
     >
       {/* Small Image */}
       <img
@@ -310,9 +306,8 @@ function EventCard({ event, isLeft }) {
           {event.society}
         </p>
         <div
-          className={`flex gap-3 text-xs text-gray-700 mt-1 ${
-            isLeft ? "md:justify-end" : ""
-          }`}
+          className={`flex gap-3 text-xs text-gray-700 mt-1 ${isLeft ? "md:justify-end" : ""
+            }`}
         >
           <span>🕒 {event.time}</span>
           <span>📍 {event.venue}</span>
@@ -321,9 +316,10 @@ function EventCard({ event, isLeft }) {
           {event.about}
         </p>
 
-        <button
+        <Link
+          to={`/events/${event.id}`}
           className="
-            mt-3 px-4 py-2 rounded-md
+            inline-block mt-3 px-4 py-2 rounded-md
             text-xs font-bold uppercase tracking-widest
             text-white
             bg-linear-to-r from-pink-500 to-pink-600
@@ -335,7 +331,7 @@ function EventCard({ event, isLeft }) {
           "
         >
           View Details →
-        </button>
+        </Link>
       </div>
     </div>
   );
