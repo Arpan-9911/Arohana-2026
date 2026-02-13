@@ -106,7 +106,7 @@ export default function EntryPassModal({
                 <div className="text-[10px] font-mono">{qrToken}</div>
               </div>
             ) : (
-              <div className="w-28 h-28 rounded-lg bg-gradient-to-br from-white/8 to-white/4 flex items-center justify-center text-white/60 text-xs font-semibold tracking-wider">
+              <div className="w-28 h-28 rounded-lg bg-linear-to-br from-white/8 to-white/4 flex items-center justify-center text-white/60 text-xs font-semibold tracking-wider">
                 QR
               </div>
             )}
