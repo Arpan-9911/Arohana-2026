@@ -5,7 +5,6 @@ import Admin from '../models/admin.model.js';
 export async function createSocietyController(req, res) {
     try {
         // validate request body
-        console.log(req.body);
 
         const { error, value } = createSocietySchema.validate(req.body);
         if (error) {

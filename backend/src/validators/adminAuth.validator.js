@@ -45,4 +45,3 @@ export const createSocietySchema = Joi.object({
         .min(6)
         .required(),
 });
-
