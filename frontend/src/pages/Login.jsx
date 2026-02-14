@@ -6,7 +6,7 @@ import {Eye, EyeClosed, Mail} from "lucide-react"
 export default function Login() {
   return (
     <AuthLayout
-      title="Welcome Back!"
+      image="login-nobg-cropped.svg"
       subtitle={
         <>
           <span>Don't have an account?{" "}</span>

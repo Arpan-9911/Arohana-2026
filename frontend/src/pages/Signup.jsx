@@ -7,7 +7,7 @@ export default function Signup() {
   return (
     <AuthLayout
       reverse
-      image="icon-2.svg"
+      image="signUp-cropped.svg"
       subtitle={
         <>
           <span>Already have an account? </span>
