@@ -63,7 +63,7 @@ export default function FAQ() {
   const [openId, setOpenId] = useState(null);
 
   return (
-    <section id="faq" className="relative w-full py-20 px-4 sm:px-6 lg:px-8 bg-linear-to-b from-[#050505] via-[#0f0520] to-[#050505] overflow-hidden">
+    <section id="faq" className="relative w-full py-20 px-4 sm:px-6 lg:px-8 bg-linear-to-b from-[#050505] via-[#0f0520] to-[#050505] overflow-hidden scroll-mt-24">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-40 right-20 w-72 h-72 bg-[#F48FB1]/5 rounded-full blur-3xl animate-pulse" />
