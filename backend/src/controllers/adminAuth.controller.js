@@ -1,4 +1,4 @@
-import { adminLoginSchema } from "../validators/adminAuthValidator.js";
+import { adminLoginSchema } from "../validators/adminAuth.validator.js";
 import bcrypt from "bcryptjs";
 console.log(process.env.JWT_ADMIN_SECRET);
 
@@ -18,14 +18,15 @@ export async function adminLoginController(req, res) {
 
         const { email, password } = value;
 
-        const admin = await Admin.findOne({ email });
+        const admin = await Admin.findOne({ email }).select("+password");
 
         if (!admin) {
             return res.status(401).json({
                 message: "Invalid Credentials"
             });
         }
-
+        console.log(admin);
+        
         const isMatch = await bcrypt.compare(password, admin.password);
 
         if (!isMatch) {
@@ -33,7 +34,6 @@ export async function adminLoginController(req, res) {
                 message: "Invalid Credentials"
             });
         }
-        const secret = process.env.JWT_ADMIN_SECRET
 
         generateToken({
             res,
