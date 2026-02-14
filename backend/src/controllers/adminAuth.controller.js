@@ -1,11 +1,8 @@
 import { adminLoginSchema } from "../validators/adminAuth.validator.js";
 import bcrypt from "bcryptjs";
-console.log(process.env.JWT_ADMIN_SECRET);
-
 import Admin from "../models/admin.model.js";
 import { generateToken } from "../utils/generateToken.js";
 export async function adminLoginController(req, res) {
-    console.log(req.body);
 
     try {
         const { error, value } = adminLoginSchema.validate(req.body);
@@ -25,7 +22,6 @@ export async function adminLoginController(req, res) {
                 message: "Invalid Credentials"
             });
         }
-        console.log(admin);
         
         const isMatch = await bcrypt.compare(password, admin.password);
 
