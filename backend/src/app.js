@@ -38,7 +38,15 @@ app.use("/api/v1/events", eventRoutes);
 
 app.use(globalErrorHandler);
 app.get("/", (req, res) => {
-    res.json({ message: "Arohana Backend Running" });
+    res.json({ message: "API is running", route: req.originalUrl });
 });
+
+app.all("/*path", (req, res, next) => {
+    const err = new Error(`Can't find ${req.originalUrl} on this server`);
+    err.statusCode = 404;
+    next(err);
+});
+
+app.use(globalErrorHandler);
 
 export default app;
