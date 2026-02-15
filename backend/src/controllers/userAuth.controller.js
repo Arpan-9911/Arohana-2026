@@ -12,11 +12,16 @@ export async function userRegisterController(req, res) {
             });
         }
 
-        if (!req.file) {
+        if (!req.files?.aadhar_image || !req.files?.idcard_image) {
             return res.status(400).json({
-                message: "Aadhaar image is required",
+                message: "Both Aadhaar and ID card images are required",
             });
         }
+
+        const aadharFile = req.files.aadhar_image[0];
+        const idcardFile = req.files.idcard_image[0];
+
+        const baseUrl = `${req.protocol}://${req.get("host")}`;
 
         const { name, email, password } = value
 
@@ -35,7 +40,8 @@ export async function userRegisterController(req, res) {
             name,
             email,
             password: hashedPassword,
-            aadharImage: `${req.protocol}://${req.get("host")}/uploadedimages/aadhar_images/${req.file.filename}`,
+            aadharImage: `${baseUrl}/${aadharFile.path.replace(/\\/g, "/")}`,
+            idCardImage: `${baseUrl}/${idcardFile.path.replace(/\\/g, "/")}`,
         })
 
         return res.status(201).json({
