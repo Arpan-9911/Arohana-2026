@@ -34,7 +34,10 @@ const userSchema = new mongoose.Schema({
 
     approvedAt: Date,
 
-    qrToken: String,
+    qrToken: {
+        type: String,
+        default: "",
+    },
 
     qrGeneratedAt: Date,
 }, { timestamps: true });

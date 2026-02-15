@@ -1,134 +1,108 @@
 import mongoose from "mongoose";
 
 const { Schema } = mongoose;
+const roundSchema = new mongoose.Schema({
+    roundNumber: {
+        type: Number,
+        required: true,
+    },
 
-const roundSchema = new Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-      trim: true
-    },
-    instruction: {
-      type: String,
-      trim: true
-    },
-    rule: [
-      {
+    title: {
         type: String,
-        trim: true
-      }
-    ]
-  },
-  { _id: false }
+        required: true,
+        trim: true,
+    },
+
+    description: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+
+    rules: [{
+        type: String,
+        trim: true,
+    },
+    ],
+
+    roundDate: {
+        type: Date,
+    },
+},
+    { _id: false }
 );
 
-const eventSchema = new Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-      trim: true
+const eventSchema = new mongoose.Schema({
+    title: {
+        type: String,
+        required: true,
+        trim: true,
     },
 
-    society: {
-      type: Schema.Types.ObjectId,
-      ref: "Society",
-      required: true
+    description: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+
+    bannerImage: {
+        type: String, // public URL
+        required: true,
     },
 
     type: {
-      type: String,
-      enum: ["solo", "group"],
-      required: true,
-      lowercase: true,
-      trim: true
+        type: String,
+        enum: ["solo", "group"],
+        required: true,
     },
 
     minTeamSize: {
-      type: Number,
-      min: 1,
-      validate: {
-        validator: function (value) {
-          if (this.type === "group") return value != null;
-          return true;
-        },
-        message: "minTeamSize required for group events"
-      }
+        type: Number,
+        default: 1,
     },
 
     maxTeamSize: {
-      type: Number,
-      validate: {
-        validator: function (value) {
-          if (this.type === "group") {
-            return value != null && value >= this.minTeamSize;
-          }
-          return true;
-        },
-        message: "maxTeamSize must be >= minTeamSize for group events"
-      }
+        type: Number,
+        default: 1,
     },
 
-    time: {
-      type: String,
-      required: true
-    },
-
-    date: {
-      type: Date,
-      required: true
-    },
-
-    venue: {
-      type: String,
-      required: true,
-      trim: true
-    },
-
-    desc: {
-      type: String,
-      trim: true
-    },
-
-    eventImg: {
-      type: String
-    },
-
-    generalRule: [
-      {
-        type: String,
-        trim: true
-      }
+    rounds: [roundSchema],
+    generalInstructions: [
+        {
+            type: String,
+            trim: true,
+        }
     ],
-
-    rounds: {
-      type: [roundSchema],
-      default: []
-    },
-
     isOnlineSubmission: {
-      type: Boolean,
-      default: false
+        type: Boolean,
+        default: false,
     },
 
-    onlineSubmissionDealine: {
-      type: Date,
-      validate: {
-        validator: function (value) {
-          if (this.isOnlineSubmission) return value != null;
-          return true;
-        },
-        message: "Deadline required if online submission is enabled"
-      }
-    }
-  },
-  {
-    timestamps: true
-  }
+    onlineSubmissionDeadline: {
+        type: Date,
+    },
+
+    eventDate: {
+        type: Date,
+        required: true,
+    },
+
+    society: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Society",
+        required: true,
+    },
+
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Admin",
+        required: true,
+    },
+},
+    { timestamps: true }
 );
 
 const Event =
-  mongoose.models.Event || mongoose.model("Event", eventSchema);
+    mongoose.models.Event || mongoose.model("Event", eventSchema);
 
 export default Event;

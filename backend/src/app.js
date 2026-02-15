@@ -4,10 +4,6 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import path from 'path';
 import { fileURLToPath } from 'url';
-<<<<<<< HEAD
-=======
-
->>>>>>> 246055c5e463e2c6ffe57db92145c1ceea34003f
 
 
 import eventRoutes from './routes/event.routes.js';
@@ -32,7 +28,7 @@ app.use(express.json());
 app.use(urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
-    "/uploadedimages",
+    "/uploads",
     express.static(path.join(__dirname, "../uploads"))
 );
 app.use("/api/v1/auth/admin", adminAuthRoutes);

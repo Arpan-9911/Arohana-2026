@@ -12,7 +12,7 @@ export const globalErrorHandler = (err, req, res, next) => {
         if (err.code === "LIMIT_UNEXPECTED_FILE") {
             return res.status(400).json({
                 success: false,
-                message: "Invalid file type. Only JPG and PNG allowed.",
+                message: "Invalid file type. Only images,videos and PDFs are allowed.",
             });
         }
     }
