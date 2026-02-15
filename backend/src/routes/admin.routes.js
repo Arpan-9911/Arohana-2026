@@ -1,5 +1,5 @@
 import express from "express";
-import { createEventController, createSocietyController, deleteEventController, getSocietyEventsController } from "../controllers/admin.controller.js";
+import { approveUserController, createEventController, createSocietyController, deleteEventController, getSocietyEventsController, rejectUserController } from "../controllers/admin.controller.js";
 import { protectAdmin } from "../middleware/authAdmin.middleware.js";
 import { requireSuperAdmin } from "../middleware/superAdmin.middleware.js";
 import { requireSocietyAdmin } from "../middleware/societyAdmin.middleware.js";
@@ -31,5 +31,17 @@ router.delete(
     protectAdmin,
     requireSocietyAdmin,
     deleteEventController
+);
+router.patch(
+    "/users/:id/approve",
+    protectAdmin,
+    requireSuperAdmin,
+    approveUserController
+);
+router.patch(
+    "/users/:id/reject",
+    protectAdmin,
+    requireSuperAdmin,
+    rejectUserController
 );
 export default router;

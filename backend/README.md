@@ -102,6 +102,8 @@ The user authentication flow is implemented with a separate user JWT secret and 
 ### User Management
 - ✅ User registration endpoint with Aadhaar upload (multer)
 - ✅ User login & logout with JWT stored in HTTP-only cookie
+- ✅ User profile retrieval (protected route)
+- ✅ Document reupload functionality for Aadhaar/ID cards
 - ✅ Upload middleware (`upload.middleware.js`) with file-type filtering and 20MB limit
 - ✅ Joi validation for user registration (`userAuth.validator.js`)
 
@@ -110,6 +112,18 @@ The user authentication flow is implemented with a separate user JWT secret and 
 - ✅ Society model with proper schema
 - ✅ Joi validation schema for society data (`adminAuth.validator.js`)
 - ✅ Role-based access to society operations
+
+### Event Management
+- ✅ Event creation by society admin with banner upload
+- ✅ Event listing for society admins
+- ✅ Event deletion by society admin
+- ✅ Public event listing and retrieval
+- ✅ Single event details endpoint
+
+### User Approval System
+- ✅ User approval by super admin
+- ✅ User rejection by super admin
+- ✅ QR token validation for entry passes
 
 ### Security Layer
 - ✅ Password hashing with bcrypt
@@ -288,27 +302,57 @@ npm start
 
 ## 📊 API Endpoints (Current)
 
-### Admin Authentication
+### Route Status Summary
+**Total Routes: 16 Completed ✅**
+
+| Route Group | Total | Completed |
+|-------------|-------|-----------|
+| Admin Authentication | 2 | 2 ✅ |
+| User Authentication | 5 | 5 ✅ |
+| Admin Operations | 6 | 6 ✅ |
+| Event Management | 2 | 2 ✅ |
+| QR & Entry Pass Validation | 1 | 1 ✅ |
+| **TOTAL** | **16** | **16 ✅** |
+
+### Admin Authentication (2/2 Completed ✅)
 
 ```
-POST   /api/v1/auth/admin/login       # Admin login
-POST   /api/v1/auth/admin/logout      # Admin logout
+POST   /api/v1/auth/admin/login       # Admin login with credentials
+POST   /api/v1/auth/admin/logout      # Admin logout, clear token cookie
 ```
 
-### Super Admin
+### User Authentication (5/5 Completed ✅)
 
 ```
-POST   /api/v1/admin/create-society  # Create society
-GET    /api/v1/admin/societies       # List societies (future)
+POST   /api/v1/auth/user/register    # User registration with Aadhaar & ID card upload
+POST   /api/v1/auth/user/login       # User login with credentials
+POST   /api/v1/auth/user/logout      # User logout, clear token cookie
+PATCH  /api/v1/auth/user/reupload-documents  # Reupload Aadhaar/ID card (protected)
+GET    /api/v1/auth/user/profile     # Get user profile (protected)
 ```
 
-### User Authentication
+### Admin Operations (6/6 Completed ✅)
 
 ```
-POST   /api/v1/auth/user/register    # User registration (Aadhaar upload)
-POST   /api/v1/auth/user/login       # User login
-GET    /api/v1/auth/user/logout      # User logout
-GET    /api/v1/auth/user/profile     # User profile (protected)
+POST   /api/v1/admin/create-society        # Create new society (Super Admin only)
+GET    /api/v1/admin/events                # Get society events (Society Admin only)
+POST   /api/v1/admin/events                # Create event with banner (Society Admin only)
+DELETE /api/v1/admin/events/:id            # Delete event (Society Admin only)
+PATCH  /api/v1/admin/users/:id/approve    # Approve user registration (Super Admin only)
+PATCH  /api/v1/admin/users/:id/reject     # Reject user registration (Super Admin only)
+```
+
+### Event Management (2/2 Completed ✅)
+
+```
+GET    /api/v1/events                # Get all events with details
+GET    /api/v1/events/:id            # Get specific event details
+```
+
+### QR & Entry Pass Validation (1/1 Completed ✅)
+
+```
+GET    /api/v1/qr/validate/:token    # Validate QR token for entry pass
 ```
 
 ---

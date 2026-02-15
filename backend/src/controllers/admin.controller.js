@@ -10,7 +10,6 @@ import { createEventSchema } from '../validators/event.validation.js';
 export async function createSocietyController(req, res) {
     try {
         // validate request body
-
         const { error, value } = createSocietySchema.validate(req.body);
         if (error) {
             return res.status(400).json({
@@ -182,6 +181,94 @@ export async function getSocietyEventsController(req, res) {
         return res.status(500).json({
             success: false,
             message: error.message,
+        });
+    }
+}
+
+export async function getPendingUsersController(req, res) {
+    try {
+        const users = await User.find({ status: "pending" })
+            .select("-password")
+            .sort({ createdAt: -1 });
+
+        return res.json({
+            success: true,
+            count: users.length,
+            users,
+        });
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+export async function approveUserController(req, res) {
+    try {
+        const user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (user.status === "approved") {
+            return res.status(400).json({
+                message: "User already approved",
+            });
+        }
+
+        const qrToken = nanoid(40);
+
+        user.status = "approved";
+        user.rejectionReason = null;
+        user.approvedAt = new Date();
+        user.qrToken = qrToken;
+        user.qrGeneratedAt = new Date();
+
+        await user.save();
+
+        return res.json({
+            success: true,
+            message: "User approved successfully",
+            qrToken,
+        });
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({ message: "Server Error" });
+    }
+}
+export async function rejectUserController(req, res) {
+    try {
+        const { reason } = req.body;
+
+        const user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found",
+            });
+        }
+
+        if (user.status === "approved") {
+            return res.status(400).json({
+                message: "Approved user cannot be rejected directly",
+            });
+        }
+
+        user.status = "rejected";
+        user.rejectionReason = reason || "Application rejected";
+        user.qrToken = null; // maybe jsut to be safe
+        user.qrGeneratedAt = null;
+
+        await user.save();
+
+        return res.json({
+            success: true,
+            message: "User rejected successfully",
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            message: err.message,
         });
     }
 }

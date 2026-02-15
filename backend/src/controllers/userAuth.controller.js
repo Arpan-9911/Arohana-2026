@@ -144,3 +144,43 @@ export function userProfileController(req, res) {
         },
     });
 }
+
+export async function reuploadDocumentsController(req, res) {
+    try {
+        const user = req.user;
+
+        if (user.status !== "rejected") {
+            return res.status(400).json({
+                message: "You can only reupload documents if rejected.",
+            });
+        }
+
+        if (!req.files?.aadhar_image || !req.files?.idcard_image) {
+            return res.status(400).json({
+                message: "Both Aadhaar and ID card are required.",
+            });
+        }
+
+        const baseUrl = `${req.protocol}://${req.get("host")}`;
+
+        // Save new files
+        user.aadharImage = `${baseUrl}/${req.files.aadhar_image[0].path.replace(/\\/g, "/")}`;
+        user.idCardImage = `${baseUrl}/${req.files.idcard_image[0].path.replace(/\\/g, "/")}`;
+
+        user.status = "pending";
+        user.rejectionReason = null;
+        user.documentsUpdatedAt = new Date();
+
+        await user.save();
+
+        return res.json({
+            success: true,
+            message: "Documents re-submitted successfully. Awaiting approval.",
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            message: err.message,
+        });
+    }
+}
