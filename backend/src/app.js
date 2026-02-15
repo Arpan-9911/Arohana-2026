@@ -33,10 +33,16 @@ app.use(
 app.use("/api/v1/auth/admin", adminAuthRoutes);
 app.use("/api/v1/auth/user", userAuthRoutes);
 app.use("/api/v1/admin", superAdminRoutes);
+app.get("/", (req, res) => {
+    res.json({ message: "API is running", route: req.originalUrl });
+});
+
+app.all("/*path", (req, res, next) => {
+    const err = new Error(`Can't find ${req.originalUrl} on this server`);
+    err.statusCode = 404;
+    next(err);
+});
 
 app.use(globalErrorHandler);
-app.get("/", (req, res) => {
-    res.json({ message: "Arohana Backend Running" });
-});
 
 export default app;
