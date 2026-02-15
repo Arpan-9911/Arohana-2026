@@ -6,6 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 
+import eventRoutes from './routes/event.routes.js';
 import adminAuthRoutes from './routes/adminAuth.routes.js';
 import userAuthRoutes from './routes/userAuth.routes.js';
 import superAdminRoutes from './routes/superAdmin.routes.js';
@@ -33,6 +34,7 @@ app.use(
 app.use("/api/v1/auth/admin", adminAuthRoutes);
 app.use("/api/v1/auth/user", userAuthRoutes);
 app.use("/api/v1/admin", superAdminRoutes);
+app.use("/api/v1/events", eventRoutes);
 
 app.use(globalErrorHandler);
 app.get("/", (req, res) => {
