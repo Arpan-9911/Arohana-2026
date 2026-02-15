@@ -23,11 +23,27 @@ export async function createEventController(req, res) {
         }
 
         const { error, value } = createEventSchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                message: error.details[0].message
+            });
+        }
+
+        const baseUrl = `${req.protocol}://${req.get("host")}`;
+        const bannerUrl = `${baseUrl}/${req.file.path.replace(/\\/g, "/")}`;
+
+        const event = await Event.create({
+            ...value,
+            bannerImage: bannerUrl,
+            society: req.admin.society,
+            createdBy: req.admin._id,
+        });
 
         return res.status(201).json({
             success: true,
             message: "Event created successfully",
-            data: event
+            event,
         });
 
     } catch (error) {
@@ -38,7 +54,7 @@ export async function createEventController(req, res) {
     }
 }
 
-export async function deleteEvent(req, res) {
+export async function deleteEventController(req, res) {
     try {
         const { id } = req.params;
 
@@ -50,7 +66,7 @@ export async function deleteEvent(req, res) {
             });
         }
 
-        const event = await Event.findByIdAndDelete(id);
+        const event = await Event.findById(id);
 
         if (!event) {
             return res.status(404).json({
@@ -58,6 +74,16 @@ export async function deleteEvent(req, res) {
                 message: "Event not found"
             });
         }
+        // ownership check
+
+        if (event.society.toString() !== req.admin.society.toString()) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not allowed to delete this event",
+            });
+        }
+
+        await event.deleteOne();
 
         return res.status(200).json({
             success: true,
@@ -65,9 +91,10 @@ export async function deleteEvent(req, res) {
         });
 
     } catch (error) {
+        console.log(error);
         return res.status(500).json({
             success: false,
-            message: error.message
+            message: "Internal server error"
         });
     }
 }

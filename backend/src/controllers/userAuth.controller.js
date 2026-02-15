@@ -134,9 +134,11 @@ export function userProfileController(req, res) {
             name: req.user.name,
             email: req.user.email,
             aadharImage: req.user.aadharImage,
+            idCardImage: req.user.idCardImage,
             isApproved: req.user.isApproved,
             approvedAt: req.user.approvedAt,
             createdAt: req.user.createdAt,
+            qrToken: req.user.qrToken,
         },
     });
 }
