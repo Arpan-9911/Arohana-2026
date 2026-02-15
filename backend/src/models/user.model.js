@@ -27,12 +27,18 @@ const userSchema = new mongoose.Schema({
         default: null,
     },
 
-    isApproved: {
-        type: Boolean,
-        default: false,
+    status: {
+        type: String,
+        enum: ["pending", "approved", "rejected"],
+        default: "pending",
+    },
+
+    rejectionReason: {
+        type: String,
     },
 
     approvedAt: Date,
+    documentsUpdatedAt: Date,
 
     qrToken: {
         type: String,

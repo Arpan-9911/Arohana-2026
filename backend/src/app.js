@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 import eventRoutes from './routes/event.routes.js';
 import adminAuthRoutes from './routes/adminAuth.routes.js';
 import userAuthRoutes from './routes/userAuth.routes.js';
-import superAdminRoutes from './routes/superAdmin.routes.js';
+import superAdminRoutes from './routes/admin.routes.js';
 import { globalErrorHandler } from './middleware/error.middleware.js';
 const app = express();
 

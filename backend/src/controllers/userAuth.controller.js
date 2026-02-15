@@ -51,7 +51,7 @@ export async function userRegisterController(req, res) {
                 id: newUser._id,
                 name: newUser.name,
                 email: newUser.email,
-                isApproved: newUser.isApproved,
+                status: newUser.status,
             },
         });
     } catch (error) {
@@ -100,7 +100,8 @@ export async function userLoginController(req, res) {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                isApproved: user.isApproved,
+                status: user.status,
+                rejectionReason: user.rejectionReason,
             },
         });
 
@@ -135,7 +136,8 @@ export function userProfileController(req, res) {
             email: req.user.email,
             aadharImage: req.user.aadharImage,
             idCardImage: req.user.idCardImage,
-            isApproved: req.user.isApproved,
+            status: req.user.status,
+            rejectionReason: req.user.rejectionReason,
             approvedAt: req.user.approvedAt,
             createdAt: req.user.createdAt,
             qrToken: req.user.qrToken,
