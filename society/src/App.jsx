@@ -5,10 +5,14 @@ import SocietyDashboard from "./pages/SocietyDashboard";
 import SocietyEvents from "./pages/SocietyEvents";
 import SocietyParticipants from "./pages/SocietyParticipants";
 import ProtectedSocietyRoute from "./components/ProtectedSocietyRoute";
+import Login from "./pages/login";
 
 function App() {
   return (
+
     <Routes>
+      <Route path= "/login" element={<Login />} />
+
       {/* Society Admin Routes */}
       <Route
         path="/"
