@@ -1,45 +1,57 @@
-import { useState,useEffect } from "react"
+import { useState, useEffect } from "react"
 import { DashboardLayout } from "@/layouts/DashboardLayout"
 import { Building2, MoreVertical, Plus, User, X } from "lucide-react"
 import { Button } from "@/components/ui/Button"
-import api from "@/lib/api"
-
-const initialSocieties = [
-  {
-    id: 1,
-    name: "TECHWHIZ",
-    description: "The premier coding and technology club for innovation and development.",
-    members: 124,
-    admin: "Admin",
-    founded: "11/02/2023",
-    color: "bg-blue-600"
-  }
-]
+import { getSocieties, createSociety } from "@/lib/admin.service"
+import { toast } from "sonner"
 
 export default function SocietiesPage() {
-  
-  const [societies, setSocieties] = useState(initialSocieties)
+
+  const [societies, setSocieties] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [formData, setFormData] = useState({ name: "", description: "", adminName: "", adminEmail: "", password: "" });
+  const [loading, setLoading] = useState(true);
+
+  const fetchSocieties = async () => {
+    try {
+      setLoading(true);
+      const data = await getSocieties();
+      if (data.success) {
+        setSocieties(data.societies);
+      }
+    } catch (error) {
+      console.error("Failed to fetch societies:", error);
+      toast.error("Failed to fetch societies");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSocieties();
+  }, []);
 
   const handleCreate = async (e) => {
     e.preventDefault()
-    const newSociety = {
-      name: formData.name,
+    const newSocietyData = {
+      societyName: formData.name,
       description: formData.description,
       adminName: formData.adminName,
       adminEmail: formData.adminEmail,
-      password: formData.password,
+      adminPassword: formData.password,
     }
-    // try{
-    //   await api.post('/create-society',newSociety);
-    // } catch(err){
-    //   console.error(err);      
-    // }
-
-    setSocieties([...societies, newSociety])
-    setIsModalOpen(false)
-    setFormData({ name: "", description: "", adminName: "", adminEmail: "", password: "" });
+    try {
+      const response = await createSociety(newSocietyData);
+      if (response.success) {
+        toast.success("Society created successfully");
+        fetchSocieties();
+        setIsModalOpen(false)
+        setFormData({ name: "", description: "", adminName: "", adminEmail: "", password: "" });
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to create society");
+    }
   }
 
   return (
@@ -59,28 +71,32 @@ export default function SocietiesPage() {
           </Button>
         </div>
 
-        {/* Societies Grid (Image 1 Style) */}
+        {/* Societies Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="bg-[#111] border border-border rounded-2xl p-6 relative group overflow-hidden">
-            <div className="flex justify-between items-start mb-4">
-              <div className="bg-secondary p-3 rounded-xl border border-border">
-                <Building2 className="w-6 h-6 text-blue-500" />
+          {loading ? (
+            <p className="text-white">Loading...</p>
+          ) : societies.map((society) => (
+            <div key={society._id} className="bg-[#111] border border-border rounded-2xl p-6 relative group overflow-hidden">
+              <div className="flex justify-between items-start mb-4">
+                <div className="bg-secondary p-3 rounded-xl border border-border">
+                  <Building2 className="w-6 h-6 text-blue-500" />
+                </div>
+                <Button className="text-[#f1f1f1] hover:text-white"><MoreVertical className="w-5 h-5" /></Button>
               </div>
-              <Button className="text-[#f1f1f1] hover:text-white"><MoreVertical className="w-5 h-5" /></Button>
+              <h3 className="text-xl font-bold text-white uppercase tracking-tight">{society.name}</h3>
+              <p className="text-xs text-[#f1f1f1] mb-4">Founded {new Date(society.createdAt).toLocaleDateString()}</p>
+              <p className="text-[#f1f1f1] text-sm line-clamp-2 mb-6">
+                {society.description}
+              </p>
+              <div className="flex items-center gap-2 pt-4 border-t border-border/50 text-sm text-muted-foreground">
+                <User className="w-4 h-4 text-blue-500" /> Managed by Admin
+                {/* <span className="ml-auto text-blue-500 hover:underline cursor-pointer font-medium">View Detail</span> */}
+              </div>
             </div>
-            <h3 className="text-xl font-bold text-white uppercase tracking-tight">TechWhiz</h3>
-            <p className="text-xs text-[#f1f1f1] mb-4">Founded 11/02/2023</p>
-            <p className="text-[#f1f1f1] text-sm line-clamp-2 mb-6">
-              The premier coding and technology club for innovation and development.
-            </p>
-            <div className="flex items-center gap-2 pt-4 border-t border-border/50 text-sm text-muted-foreground">
-              <User className="w-4 h-4 text-blue-500" /> Managed by Admin
-              <span className="ml-auto text-blue-500 hover:underline cursor-pointer font-medium">View Detail</span>
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* Create Society Pop-up Modal (Image 2 Style) */}
+        {/* Create Society Pop-up Modal */}
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             {/* Backdrop */}
@@ -88,7 +104,7 @@ export default function SocietiesPage() {
 
             {/* Modal Content */}
             <div className="relative w-full max-w-2xl bg-[#0f0f0f] border border-border rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-              <div className="flex items-center justify-between p-6 border-b border-border bg-#0101010 text-white">
+              <div className="flex items-center justify-between p-6 border-b border-border bg-[#010101] text-white">
                 <h2 className="text-xl font-bold flex items-center gap-2">
                   Add Society & Admin
                 </h2>
@@ -151,7 +167,7 @@ export default function SocietiesPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-white">Temporary Password</label>
+                    <label className="text-sm font-medium text-white">Password</label>
                     <input
                       className="w-full text-[#f1f1f1] bg-[#1a1a1a] border border-border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all"
                       placeholder="••••••••"
