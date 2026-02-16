@@ -51,7 +51,7 @@ export async function userRegisterController(req, res) {
                 id: newUser._id,
                 name: newUser.name,
                 email: newUser.email,
-                isApproved: newUser.isApproved,
+                status: newUser.status,
             },
         });
     } catch (error) {
@@ -100,7 +100,8 @@ export async function userLoginController(req, res) {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                isApproved: user.isApproved,
+                status: user.status,
+                rejectionReason: user.rejectionReason,
             },
         });
 
@@ -135,10 +136,51 @@ export function userProfileController(req, res) {
             email: req.user.email,
             aadharImage: req.user.aadharImage,
             idCardImage: req.user.idCardImage,
-            isApproved: req.user.isApproved,
+            status: req.user.status,
+            rejectionReason: req.user.rejectionReason,
             approvedAt: req.user.approvedAt,
             createdAt: req.user.createdAt,
             qrToken: req.user.qrToken,
         },
     });
+}
+
+export async function reuploadDocumentsController(req, res) {
+    try {
+        const user = req.user;
+
+        if (user.status !== "rejected") {
+            return res.status(400).json({
+                message: "You can only reupload documents if rejected.",
+            });
+        }
+
+        if (!req.files?.aadhar_image || !req.files?.idcard_image) {
+            return res.status(400).json({
+                message: "Both Aadhaar and ID card are required.",
+            });
+        }
+
+        const baseUrl = `${req.protocol}://${req.get("host")}`;
+
+        // Save new files
+        user.aadharImage = `${baseUrl}/${req.files.aadhar_image[0].path.replace(/\\/g, "/")}`;
+        user.idCardImage = `${baseUrl}/${req.files.idcard_image[0].path.replace(/\\/g, "/")}`;
+
+        user.status = "pending";
+        user.rejectionReason = null;
+        user.documentsUpdatedAt = new Date();
+
+        await user.save();
+
+        return res.json({
+            success: true,
+            message: "Documents re-submitted successfully. Awaiting approval.",
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            message: err.message,
+        });
+    }
 }

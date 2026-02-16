@@ -4,5 +4,5 @@ import { adminLoginController, adminLogoutController } from '../controllers/admi
 const router = express.Router();
 
 router.post('/login', adminLoginController);
-router.get('/logout', adminLogoutController);
+router.post('/logout', adminLogoutController);
 export default router;
