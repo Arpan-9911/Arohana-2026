@@ -3,31 +3,29 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts"
 
-const topProductsData = [
-  { name: "Product A", value: 6600, color: "hsl(var(--chart-1))" },
-  { name: "Product B", value: 2400, color: "hsl(var(--chart-4))" },
-  { name: "Product C", value: 2221, color: "hsl(var(--chart-3))" },
-]
+const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))"];
 
-const worldMapData = [
-  { region: "North America", value: 45 },
-  { region: "Europe", value: 32 },
-  { region: "Asia", value: 28 },
-]
+export function ChartsSection({ stats }) {
+  if (!stats) return <div>Loading charts...</div>;
 
-export function ChartsSection() {
+  const registrationData = stats.registrationStats.map((item, index) => ({
+    name: item._id,
+    value: item.count,
+    color: COLORS[index % COLORS.length]
+  }));
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      {/* Top Products */}
+      {/* Registration Status */}
       <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-base">Top Products</CardTitle>
+          <CardTitle className="text-base">Registration Status</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-6">
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie
-                data={topProductsData}
+                data={registrationData}
                 cx="50%"
                 cy="50%"
                 innerRadius={60}
@@ -35,20 +33,20 @@ export function ChartsSection() {
                 paddingAngle={2}
                 dataKey="value"
               >
-                {topProductsData.map((entry, index) => (
+                {registrationData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
             </PieChart>
           </ResponsiveContainer>
           <div className="w-full space-y-2">
-            {topProductsData.map((item, index) => (
+            {registrationData.map((item, index) => (
               <div key={index} className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-                  <span className="text-muted-foreground">{item.name}</span>
+                  <span className="text-muted-foreground capitalize">{item.name}</span>
                 </div>
-                <span className="font-semibold text-foreground">${item.value}</span>
+                <span className="font-semibold text-foreground">{item.value}</span>
               </div>
             ))}
           </div>
@@ -57,47 +55,17 @@ export function ChartsSection() {
 
       <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-base">Global Distribution</CardTitle>
-          <div className="text-3xl font-bold text-foreground mt-2">$450,00</div>
-          <p className="text-sm text-muted-foreground">Total revenue</p>
+          <CardTitle className="text-base">Overview</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="relative w-full h-48 bg-secondary rounded-lg flex items-center justify-center overflow-hidden">
-            {/* Simplified world map visualization */}
-            <svg viewBox="0 0 960 600" className="w-full h-full opacity-40">
-              <path
-                d="M100,150 L200,100 L300,150 L350,200 L300,250 L200,200 Z"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              />
-              <path
-                d="M400,100 L500,80 L550,120 L500,160 L400,150 Z"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              />
-              <path
-                d="M600,200 L700,180 L750,220 L700,260 L600,250 Z"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-foreground">Global</div>
-                <div className="text-sm text-muted-foreground">Distribution Map</div>
-              </div>
+          <div className="flex flex-col gap-4 text-center items-center justify-center h-full">
+            <p className="text-muted-foreground text-sm">
+              Total Registrations vs Approved
+            </p>
+            <div className="text-4xl font-bold">
+              {Math.round((stats.verifiedUsers / (stats.totalUsers || 1)) * 100)}%
             </div>
-          </div>
-          <div className="mt-4 grid grid-cols-3 gap-2">
-            {worldMapData.map((item, index) => (
-              <div key={index} className="bg-secondary rounded-lg p-3 text-center">
-                <div className="text-xs text-muted-foreground">{item.region}</div>
-                <div className="text-lg font-bold text-foreground">{item.value}%</div>
-              </div>
-            ))}
+            <p className="text-xs text-muted-foreground">Approval Rate</p>
           </div>
         </CardContent>
       </Card>

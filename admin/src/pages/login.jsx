@@ -1,19 +1,36 @@
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Lock, Mail } from "lucide-react"
+import { loginAdmin } from "@/lib/admin.service"
+import { useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
-    // Simulate login delay
-    setTimeout(() => {
+
+    const formData = new FormData(e.target)
+    const email = formData.get("email")
+    const password = formData.get("password")
+
+    try {
+      const response = await loginAdmin({ email, password })
+      if (response.success) {
+        localStorage.setItem("user", JSON.stringify(response.admin))
+        localStorage.setItem("token", response.token)
+        toast.success("Login successful")
+        navigate("/")
+      }
+    } catch (error) {
+      console.error(error)
+      toast.error(error.response?.data?.message || "Login failed")
+    } finally {
       setIsLoading(false)
-      // Add your navigation logic here
-      console.log("Logged in")
-    }, 2000)
+    }
   }
 
   return (
@@ -49,6 +66,7 @@ export default function Login() {
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <input
+                    name="email"
                     id="email"
                     type="email"
                     placeholder="name@example.com"
@@ -67,13 +85,11 @@ export default function Login() {
                   >
                     Password
                   </label>
-                  <a href="#" className="text-sm font-medium text-blue-500 hover:text-blue-400">
-                    Forgot password?
-                  </a>
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <input
+                    name="password"
                     id="password"
                     type="password"
                     required
@@ -100,14 +116,6 @@ export default function Login() {
             </form>
           </CardContent>
         </Card>
-
-        {/* Footer */}
-        <div className="mt-6 text-center text-sm text-muted-foreground">
-          Don't have an account?{" "}
-          <a href="#" className="font-medium text-blue-500 hover:text-blue-400">
-            Contact Support
-          </a>
-        </div>
       </div>
     </div>
   )
