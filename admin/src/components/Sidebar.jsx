@@ -1,11 +1,11 @@
 "use client"
 
 import { BarChart3, Home, TrendingUp, Users, LogOut, X, User } from "lucide-react"
-import {Link,  useLocation } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import ThemeToggle from "./ThemeToggle"
 
 export default function Sidebar({ open, onToggle }) {
-  const {location} = useLocation()
+  const { location } = useLocation()
 
   const menuItems = [
     { icon: Home, label: "Dashboard", href: "/" },
@@ -20,9 +20,8 @@ export default function Sidebar({ open, onToggle }) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-sidebar border-r border-sidebar-border transition-transform duration-300 ${
-          open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        }`}
+        className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-sidebar border-r border-sidebar-border transition-transform duration-300 ${open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          }`}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
@@ -47,11 +46,10 @@ export default function Sidebar({ open, onToggle }) {
                 <Link
                   key={item.href}
                   to={item.href}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                    isActive
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive
                       ? "bg-sidebar-primary text-sidebar-primary-foreground"
                       : "text-sidebar-foreground hover:bg-sidebar-accent"
-                  }`}
+                    }`}
                 >
                   <Icon size={20} />
                   <span className="font-medium">{item.label}</span>
@@ -70,24 +68,33 @@ export default function Sidebar({ open, onToggle }) {
             {/* Profile Link */}
             <Link
               to="/profile"
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                location === "/profile"
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${location === "/profile"
                   ? "bg-sidebar-primary text-sidebar-primary-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent"
-              }`}
+                }`}
             >
               <User size={20} />
               <span className="font-medium">Profile</span>
             </Link>
 
-            {/* Logout Link */}
-            <Link
-              to="/logout"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+            {/* Logout Button */}
+            <button
+              onClick={async () => {
+                try {
+                  await import("@/lib/admin.service").then(async (module) => {
+                    await module.logoutAdmin();
+                    window.location.href = "/login";
+                  })
+                } catch (e) {
+                  console.error("Logout failed", e)
+                  window.location.href = "/login";
+                }
+              }}
+              className="flex w-full items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors text-left"
             >
               <LogOut size={20} />
               <span className="font-medium">Logout</span>
-            </Link>
+            </button>
           </div>
         </div>
       </aside>
