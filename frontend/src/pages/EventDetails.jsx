@@ -2,167 +2,146 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link, useParams } from "react-router-dom"
 import { Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { getEventById, participateSolo, createTeam, joinTeam } from "../lib/event.service";
+import { toast } from "sonner";
+import { useUserStore } from "../store/user.store";
 
 export default function EventDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useUserStore();
   const [event, setEvent] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState("create");
-
-  const EVENTS = {
-    day1: [
-      {
-        id: "codeblitz",
-        name: "CodeBlitz",
-        society: "TechWhiz",
-        type: "group",
-        time: "10:00 AM",
-        venue: "Main Lab",
-        about: "24-hour competitive coding marathon designed to test your algorithmic thinking and endurance.",
-        image: "/events-bg-top.png",
-        generalRules: [
-          "Teams must consist of exactly 3 members.",
-          "Bring your own laptops and charging cables.",
-        ],
-        rounds: [
-          {
-            name: "Round 1: Logic & Debugging",
-            instruction: "A 45-minute sprint focusing on identifying bugs in legacy code.",
-            rules: ["No internet access allowed.", "Each hint taken reduces 10 points."]
-          },
-          {
-            name: "Round 2: System Design",
-            instruction: "Design a scalable architecture for a real-world problem.",
-            rules: ["Use of whiteboards is mandatory.", "Teams must present their design to the judges."]
-          }
-        ],
-      },
-      {
-        id: "designathon",
-        name: "Designathon",
-        society: "TechWhiz",
-        type: "group",
-        time: "10:00 AM",
-        venue: "Main Lab",
-        about: "24-hour competitive coding marathon designed to test your algorithmic thinking and endurance.",
-        image: "/events-bg-top.png",
-        generalRules: [
-          "Teams must consist of exactly 3 members.",
-          "Bring your own laptops and charging cables.",
-        ],
-        rounds: [
-          {
-            name: "Round 1: Logic & Debugging",
-            instruction: "A 45-minute sprint focusing on identifying bugs in legacy code.",
-            rules: ["No internet access allowed.", "Each hint taken reduces 10 points."]
-          },
-          {
-            name: "Round 2: System Design",
-            instruction: "Design a scalable architecture for a real-world problem.",
-            rules: ["Use of whiteboards is mandatory.", "Teams must present their design to the judges."]
-          }
-        ],
-      },
-      {
-        id: "debate",
-        name: "Parliamentary Debate",
-        society: "TechWhiz",
-        type: "solo",
-        time: "3:00 PM",
-        venue: "Campus",
-        about: "Capture stories around campus. A guided walk to find the hidden aesthetics.",
-        image: "/events-bg-top.png",
-        generalRules: [
-          "Photos must be clicked on the day of the event.",
-          "Editing is restricted to basic color correction."
-        ],
-        rounds: [
-          {
-            name: "Final Submission",
-            instruction: "Submit your best 3 shots before 6:00 PM.",
-            rules: ["Original RAW files must be provided upon request."]
-          }
-        ],
-      },
-    ],
-    day2: [
-      {
-        id: "openmic",
-        name: "Open Mic",
-        society: "TechWhiz",
-        type: "group",
-        time: "10:00 AM",
-        venue: "Main Lab",
-        about: "24-hour competitive coding marathon designed to test your algorithmic thinking and endurance.",
-        image: "/events-bg-top.png",
-        generalRules: [
-          "Teams must consist of exactly 3 members.",
-          "Bring your own laptops and charging cables.",
-        ],
-        rounds: [
-          {
-            name: "Round 1: Logic & Debugging",
-            instruction: "A 45-minute sprint focusing on identifying bugs in legacy code.",
-            rules: ["No internet access allowed.", "Each hint taken reduces 10 points."]
-          },
-          {
-            name: "Round 2: System Design",
-            instruction: "Design a scalable architecture for a real-world problem.",
-            rules: ["Use of whiteboards is mandatory.", "Teams must present their design to the judges."]
-          }
-        ],
-      },
-      {
-        id: "photowalk",
-        name: "Arohana Night Concert",
-        society: "TechWhiz",
-        type: "solo",
-        time: "3:00 PM",
-        venue: "Campus",
-        about: "Capture stories around campus. A guided walk to find the hidden aesthetics.",
-        image: "/events-bg-top.png",
-        generalRules: [
-          "Photos must be clicked on the day of the event.",
-          "Editing is restricted to basic color correction."
-        ],
-        rounds: [
-          {
-            name: "Final Submission",
-            instruction: "Submit your best 3 shots before 6:00 PM.",
-            rules: ["Original RAW files must be provided upon request."]
-          }
-        ],
-      },
-    ],
-  };
+  const [teamName, setTeamName] = useState("");
+  const [teamCode, setTeamCode] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const allEvents = [...EVENTS.day1, ...EVENTS.day2];
-    const foundEvent = allEvents.find((e) => e.id === id);
+    const fetchEvent = async () => {
+      try {
+        setLoading(true);
+        const response = await getEventById(id);
 
-    if (foundEvent) {
-      setEvent(foundEvent);
-    } else {
-      navigate("*")
+        if (response.success) {
+          setEvent(response.event);
+        } else {
+          toast.error("Event not found");
+          navigate("/events");
+        }
+      } catch (error) {
+        console.error("Error fetching event:", error);
+        toast.error("Failed to load event details");
+        navigate("/events");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchEvent();
     }
   }, [id, navigate]);
 
   const handleRegisterClick = () => {
+    if (!isAuthenticated) {
+      toast.error("Please login to register for events");
+      navigate("/login");
+      return;
+    }
+
     if (event.type === "group") {
       setIsModalOpen(true);
     } else {
-      alert("Proceeding to Solo Registration...");
+      handleSoloRegistration();
     }
   }
 
-  if (!event) {
-    return (<div className="min-h-screen bg-foreground flex items-center justify-center text-white">
-      <Loader2 className="animate-spin" />
-    </div>);
+  const handleSoloRegistration = async () => {
+    try {
+      setIsSubmitting(true);
+      const response = await participateSolo(event._id);
+
+      if (response.success) {
+        toast.success("Successfully registered for the event!");
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast.error(error.response?.data?.message || "Registration failed");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCreateTeam = async () => {
+    if (!teamName.trim()) {
+      toast.error("Please enter a team name");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const response = await createTeam(event._id, teamName.trim());
+
+      if (response.success) {
+        toast.success(`Team created! Share code: ${response.team.teamCode}`);
+        setIsModalOpen(false);
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("Team creation error:", error);
+      toast.error(error.response?.data?.message || "Failed to create team");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleJoinTeam = async () => {
+    if (!teamCode.trim()) {
+      toast.error("Please enter a team code");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const response = await joinTeam(teamCode.trim());
+
+      if (response.success) {
+        toast.success("Successfully joined the team!");
+        setIsModalOpen(false);
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("Join team error:", error);
+      toast.error(error.response?.data?.message || "Failed to join team");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-foreground flex items-center justify-center text-white">
+        <Loader2 className="animate-spin w-12 h-12" />
+      </div>
+    );
   }
 
-  const isMultiRound = event.rounds && event.rounds.length > 1;
+  if (!event) {
+    return (
+      <div className="min-h-screen bg-foreground flex items-center justify-center text-white">
+        <div>Event not found</div>
+      </div>
+    );
+  }
+
+  const societyName = event.society?.name || event.society || "Unknown";
+  const eventImage = event.image || event.imageUrl || "/events-bg-top.png";
+  const eventTime = event.time || new Date(event.eventDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const eventVenue = event.venue || event.location || "TBA";
+  const eventAbout = event.about || event.description || "No description available";
 
   return (
     <section className="relative w-full min-h-screen bg-[#0a0a0a] text-white overflow-y-auto py-10 px-4 flex justify-center md:items-center md:pt-30">
@@ -181,7 +160,7 @@ export default function EventDetails() {
           <div className="flex flex-col h-full bg-[#121212] md:border-r border-white/10">
             {/* Image Section */}
             <div className="w-full h-64 md:h-80 relative shrink-0">
-              <img src={event.image} alt={event.name} className="w-full h-full object-cover" />
+              <img src={eventImage} alt={event.name} className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-linear-to-t from-[#121212] via-transparent to-transparent" />
               <div className="absolute top-4 right-4 bg-pink-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-lg">
                 {event.type}
@@ -191,22 +170,26 @@ export default function EventDetails() {
             {/* Description Content */}
             <div className="p-6 md:p-8 flex flex-col grow">
               <div className="mb-6">
-                <h4 className="text-pink-500 font-bold tracking-widest uppercase text-xs mb-1">{event.society}</h4>
+                <h4 className="text-pink-500 font-bold tracking-widest uppercase text-xs mb-1">{societyName}</h4>
                 <h1 className="text-3xl md:text-5xl font-black text-white mb-4 leading-tight">{event.name}</h1>
                 <div className="flex flex-wrap gap-3">
-                  <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-md text-xs text-gray-300">🕒 {event.time}</span>
-                  <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-md text-xs text-gray-300">📍 {event.venue}</span>
+                  <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-md text-xs text-gray-300">🕒 {eventTime}</span>
+                  <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-md text-xs text-gray-300">📍 {eventVenue}</span>
                 </div>
               </div>
 
               <div className="mb-8">
                 <h3 className="text-md font-bold text-white uppercase tracking-wider mb-2 border-l-2 border-pink-500 pl-3">About</h3>
-                <p className="text-gray-400 text-sm md:text-base leading-relaxed">{event.about}</p>
+                <p className="text-gray-400 text-sm md:text-base leading-relaxed">{eventAbout}</p>
               </div>
 
               <div className="mt-auto hidden md:block pt-6">
-                <button onClick={handleRegisterClick} className="w-full bg-linear-to-r from-pink-600 to-purple-600 hover:scale-[1.02] text-white font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(236,72,153,0.3)] transition-all uppercase tracking-widest text-md">
-                  Register Now
+                <button
+                  onClick={handleRegisterClick}
+                  disabled={isSubmitting}
+                  className="w-full bg-linear-to-r from-pink-600 to-purple-600 hover:scale-[1.02] text-white font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(236,72,153,0.3)] transition-all uppercase tracking-widest text-md disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? "Processing..." : "Register Now"}
                 </button>
               </div>
             </div>
@@ -215,7 +198,7 @@ export default function EventDetails() {
           <div className="p-6 md:p-8 bg-[#121212] md:bg-white/5 flex flex-col h-full overflow-y-auto custom-scrollbar">
 
             {/* General Rules */}
-            {event.generalRules && (
+            {event.generalRules && event.generalRules.length > 0 && (
               <div className="mb-8">
                 <h3 className="text-md font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-pink-500 pl-3">General Rules</h3>
                 <ul className="space-y-3 bg-white/5 p-4 rounded-xl border border-white/5">
@@ -230,54 +213,60 @@ export default function EventDetails() {
             )}
 
             {/* Rounds & Timeline */}
-            <div className="mb-4 grow">
-              <h3 className="text-md font-bold text-white uppercase tracking-wider mb-6 border-l-2 border-pink-500 pl-3">
-                {isMultiRound ? "Event Timeline & Rounds" : "Instructions"}
-              </h3>
+            {event.rounds && event.rounds.length > 0 && (
+              <div className="mb-4 grow">
+                <h3 className="text-md font-bold text-white uppercase tracking-wider mb-6 border-l-2 border-pink-500 pl-3">
+                  {event.rounds.length > 1 ? "Event Timeline & Rounds" : "Instructions"}
+                </h3>
 
-              <div className="space-y-8 relative">
-                {isMultiRound && <div className="absolute left-4 top-2 bottom-2 w-px bg-white/10 hidden md:block" />}
+                <div className="space-y-8 relative">
+                  {event.rounds.length > 1 && <div className="absolute left-4 top-2 bottom-2 w-px bg-white/10 hidden md:block" />}
 
-                {event.rounds.map((round, idx) => (
-                  <div key={idx} className={`relative ${isMultiRound ? 'md:pl-12' : ''}`}>
-                    {isMultiRound && (
-                      <div className="absolute left-0 top-0 w-8 h-8 rounded-full bg-pink-600 border-4 border-[#121212] items-center justify-center text-[10px] font-bold hidden md:flex shadow-lg z-10">
-                        {idx + 1}
-                      </div>
-                    )}
-
-                    <div className="bg-white/5 border border-white/10 p-5 rounded-2xl hover:border-pink-500/30 transition-colors">
-                      <div className="flex items-center gap-3 mb-2">
-                        {isMultiRound && (
-                          <span className="md:hidden bg-pink-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Round {idx + 1}</span>
-                        )}
-                        <h4 className="text-white font-bold text-md">{round.name}</h4>
-                      </div>
-
-                      <p className="text-pink-400 text-xs mb-4 italic">{round.instruction}</p>
-
-                      {/* Round Specific Rules */}
-                      {round.rules && (
-                        <div className="pt-3 border-t border-white/5">
-                          <p className="text-[10px] uppercase text-gray-500 font-bold mb-2 tracking-wider">Round Details:</p>
-                          <ul className="space-y-2">
-                            {round.rules.map((rule, ridx) => (
-                              <li key={ridx} className="text-xs text-gray-300 flex gap-2 items-start">
-                                <span className="text-pink-500 mt-0.5">›</span> {rule}
-                              </li>
-                            ))}
-                          </ul>
+                  {event.rounds.map((round, idx) => (
+                    <div key={idx} className={`relative ${event.rounds.length > 1 ? 'md:pl-12' : ''}`}>
+                      {event.rounds.length > 1 && (
+                        <div className="absolute left-0 top-0 w-8 h-8 rounded-full bg-pink-600 border-4 border-[#121212] items-center justify-center text-[10px] font-bold hidden md:flex shadow-lg z-10">
+                          {idx + 1}
                         </div>
                       )}
+
+                      <div className="bg-white/5 border border-white/10 p-5 rounded-2xl hover:border-pink-500/30 transition-colors">
+                        <div className="flex items-center gap-3 mb-2">
+                          {event.rounds.length > 1 && (
+                            <span className="md:hidden bg-pink-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Round {idx + 1}</span>
+                          )}
+                          <h4 className="text-white font-bold text-md">{round.name}</h4>
+                        </div>
+
+                        <p className="text-pink-400 text-xs mb-4 italic">{round.instruction}</p>
+
+                        {/* Round Specific Rules */}
+                        {round.rules && (
+                          <div className="pt-3 border-t border-white/5">
+                            <p className="text-[10px] uppercase text-gray-500 font-bold mb-2 tracking-wider">Round Details:</p>
+                            <ul className="space-y-2">
+                              {round.rules.map((rule, ridx) => (
+                                <li key={ridx} className="text-xs text-gray-300 flex gap-2 items-start">
+                                  <span className="text-pink-500 mt-0.5">›</span> {rule}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="md:hidden pt-6 mt-4 border-t border-white/10 sticky bottom-0 bg-[#121212] z-20 pb-2">
-              <button onClick={handleRegisterClick} className="w-full bg-linear-to-r from-pink-600 to-purple-600 hover:scale-[1.02] text-white font-bold py-4 rounded-xl shadow-lg transition-all uppercase tracking-widest text-md">
-                Register Now
+              <button
+                onClick={handleRegisterClick}
+                disabled={isSubmitting}
+                className="w-full bg-linear-to-r from-pink-600 to-purple-600 hover:scale-[1.02] text-white font-bold py-4 rounded-xl shadow-lg transition-all uppercase tracking-widest text-md disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "Processing..." : "Register Now"}
               </button>
             </div>
 
@@ -346,20 +335,34 @@ export default function EventDetails() {
                     </label>
                     <input
                       type="text"
+                      value={modalTab === "create" ? teamName : teamCode}
+                      onChange={(e) => modalTab === "create" ? setTeamName(e.target.value) : setTeamCode(e.target.value)}
                       placeholder={
                         modalTab === "create" ? "e.g. CyberKnights" : "e.g. CB-12345"
                       }
                       className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500/50 focus:ring-1 focus:ring-pink-500/50 transition-all"
+                      disabled={isSubmitting}
                     />
                   </div>
 
-                  <button className="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3.5 rounded-xl mt-4 transition-all shadow-[0_10px_20px_rgba(219,39,119,0.2)]">
-                    {modalTab === "create" ? "Create & Register" : "Join & Register"}
+                  <button
+                    onClick={modalTab === "create" ? handleCreateTeam : handleJoinTeam}
+                    disabled={isSubmitting}
+                    className="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3.5 rounded-xl mt-4 transition-all shadow-[0_10px_20px_rgba(219,39,119,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting
+                      ? "Processing..."
+                      : modalTab === "create" ? "Create & Register" : "Join & Register"}
                   </button>
 
                   <button
-                    onClick={() => setIsModalOpen(false)}
-                    className="w-full text-gray-500 text-xs font-medium hover:text-gray-300 transition-colors"
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      setTeamName("");
+                      setTeamCode("");
+                    }}
+                    disabled={isSubmitting}
+                    className="w-full text-gray-500 text-xs font-medium hover:text-gray-300 transition-colors disabled:opacity-50"
                   >
                     Cancel
                   </button>

@@ -1,8 +1,23 @@
 import { motion } from "framer-motion";
-import { QrCode, ShieldCheck } from "lucide-react";
+import { QrCode, ShieldCheck, LogOut } from "lucide-react";
+import { useUserStore } from "../../store/user.store";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
-export default function ProfileCard({onViewPass}) {
-    
+export default function ProfileCard({ onViewPass, user }) {
+  const { logout } = useUserStore();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success("Logged out successfully");
+      navigate("/");
+    } catch (error) {
+      toast.error("Logout failed");
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -25,43 +40,67 @@ export default function ProfileCard({onViewPass}) {
           </div>
 
           {/* Verified badge */}
-          <div className="absolute -bottom-2 -right-2 bg-emerald-500 w-8 h-8 rounded-full border-4 border-black flex items-center justify-center">
-            <ShieldCheck size={16} />
-          </div>
+          {user?.status === "approved" && (
+            <div className="absolute -bottom-2 -right-2 bg-emerald-500 w-8 h-8 rounded-full border-4 border-black flex items-center justify-center">
+              <ShieldCheck size={16} />
+            </div>
+          )}
         </div>
 
         {/* User Info */}
         <div className="flex-1 text-center md:text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-primary text-xs font-bold uppercase tracking-widest mb-4">
-            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            Approved
+          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-4 ${user?.status === "approved"
+              ? "bg-emerald-500/20 text-emerald-400"
+              : user?.status === "rejected"
+                ? "bg-red-500/20 text-red-400"
+                : "bg-yellow-500/20 text-yellow-400"
+            }`}>
+            <span className={`w-2 h-2 rounded-full animate-pulse ${user?.status === "approved"
+                ? "bg-emerald-400"
+                : user?.status === "rejected"
+                  ? "bg-red-400"
+                  : "bg-yellow-400"
+              }`} />
+            {user?.status || "Pending"}
           </div>
 
           <h1 className="text-4xl font-extrabold tracking-tight">
-            Aryan Sharma
+            {user?.name || "User"}
           </h1>
 
           <p className="text-white/50 mt-2 mb-6">
-            aryan.sharma2025@university.edu
+            {user?.email || "user@email.com"}
           </p>
 
           {/* Stats */}
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-1">
-            <StatBox label="Registered Events" value="04" />
-            <StatBox label="Final Submissions" value="02" />
+            <StatBox label="Registered Events" value="--" />
+            <StatBox label="Final Submissions" value="--" />
           </div>
         </div>
 
-        {/* CTA */}
-        <div className="w-full md:w-auto px-8">
+        {/* CTA Buttons */}
+        <div className="w-full md:w-auto px-8 flex flex-col gap-3">
+          {user?.status === "approved" && user?.qrToken && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={onViewPass}
+              className="w-full md:w-auto bg-primary hover:bg-primary/90 text-white font-bold py-4 px-8 rounded-3xl flex items-center justify-center gap-2 shadow-lg"
+            >
+              <QrCode size={20} />
+              View Entry Pass
+            </motion.button>
+          )}
+
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.97 }}
-            onClick={onViewPass}
-            className="w-full md:w-auto bg-primary hover:bg-primary/90 text-white font-bold py-4 px-8 rounded-3xl flex items-center justify-center gap-2 shadow-lg"
+            onClick={handleLogout}
+            className="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-8 rounded-3xl flex items-center justify-center gap-2 shadow-lg"
           >
-            <QrCode size={20} />
-            View Entry Pass
+            <LogOut size={20} />
+            Logout
           </motion.button>
         </div>
       </div>
