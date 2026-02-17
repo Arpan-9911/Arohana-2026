@@ -7,6 +7,8 @@ import { fileURLToPath } from 'url';
 
 
 import eventRoutes from './routes/event.routes.js';
+import teamRoutes from './routes/team.route.js';
+import userRoutes from './routes/user.route.js';
 import adminAuthRoutes from './routes/adminAuth.routes.js';
 import userAuthRoutes from './routes/userAuth.routes.js';
 import superAdminRoutes from './routes/admin.routes.js';
@@ -42,15 +44,16 @@ app.use("/api/v1/auth/admin", adminAuthRoutes);
 app.use("/api/v1/auth/user", userAuthRoutes);
 app.use("/api/v1/admin", superAdminRoutes);
 app.use("/api/v1/events", eventRoutes);
+app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/teams", teamRoutes);
 app.use("/api/v1/qr", qrRoutes);
 
-app.use(globalErrorHandler);
 app.get("/", (req, res) => {
     res.json({ message: "API is running", route: req.originalUrl });
 });
 
 app.all("/*path", (req, res, next) => {
-    const err = new Error(`Can't find ${req.originalUrl} on this server`);
+    const err = new Error(`Can't ${req.method} ${req.originalUrl} on this server`);
     err.statusCode = 404;
     next(err);
 });

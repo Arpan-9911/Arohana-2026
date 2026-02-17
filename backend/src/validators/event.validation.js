@@ -73,3 +73,44 @@ export const createEventSchema = Joi.object({
 
         return value;
     });
+
+export const createTeamSchema = Joi.object({
+    name: Joi.string()
+        .trim()
+        .min(3)
+        .max(50)
+        .pattern(/^[a-zA-Z0-9\s_-]+$/)
+        .required()
+        .messages({
+            "string.empty": "Team name is required",
+            "string.min": "Team name must be at least 3 characters",
+            "string.max": "Team name must not exceed 50 characters",
+            "string.pattern.base":
+                "Team name can only contain letters, numbers, spaces, _ and -",
+        }),
+});
+export const joinTeamSchema = Joi.object({
+    teamCode: Joi.string()
+        .trim()
+        .length(8)
+        .pattern(/^[A-Z0-9]+$/)
+        .required()
+        .messages({
+            "string.empty": "Team code is required",
+            "string.length": "Team code must be exactly 8 characters",
+            "string.pattern.base":
+                "Team code must contain only uppercase letters and numbers",
+        }),
+});
+
+export const submissionSchema = Joi.object({
+    url: Joi.string()
+        .uri()
+        .pattern(/^https:\/\/(drive\.google\.com)\/.+$/)
+        .required()
+        .messages({
+            "string.empty": "Submission URL is required",
+            "string.uri": "Must be a valid URL",
+            "string.pattern.base": "Only Google Drive links are allowed",
+        }),
+});

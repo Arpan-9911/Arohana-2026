@@ -303,56 +303,100 @@ npm start
 ## 📊 API Endpoints (Current)
 
 ### Route Status Summary
-**Total Routes: 16 Completed ✅**
+**Total Routes: 20 Completed ✅**
 
-| Route Group | Total | Completed |
-|-------------|-------|-----------|
-| Admin Authentication | 2 | 2 ✅ |
-| User Authentication | 5 | 5 ✅ |
-| Admin Operations | 6 | 6 ✅ |
-| Event Management | 2 | 2 ✅ |
-| QR & Entry Pass Validation | 1 | 1 ✅ |
-| **TOTAL** | **16** | **16 ✅** |
+| Route Group | Total | Completed | Status |
+|-------------|-------|-----------|--------|
+| Admin Authentication | 2 | 2 | ✅ Complete |
+| User Authentication | 5 | 5 | ✅ Complete |
+| Admin Operations | 6 | 6 | ✅ Complete |
+| Event Management | 5 | 5 | ✅ Complete |
+| Team Operations | 1 | 1 | ✅ Complete |
+| QR & Entry Pass Validation | 1 | 1 | ✅ Complete |
+| **TOTAL** | **20** | **20** | **✅ 100% Complete** |
 
-### Admin Authentication (2/2 Completed ✅)
-
-```
-POST   /api/v1/auth/admin/login       # Admin login with credentials
-POST   /api/v1/auth/admin/logout      # Admin logout, clear token cookie
-```
-
-### User Authentication (5/5 Completed ✅)
+### Admin Authentication Routes (2/2 Completed ✅)
 
 ```
-POST   /api/v1/auth/user/register    # User registration with Aadhaar & ID card upload
-POST   /api/v1/auth/user/login       # User login with credentials
-POST   /api/v1/auth/user/logout      # User logout, clear token cookie
-PATCH  /api/v1/auth/user/reupload-documents  # Reupload Aadhaar/ID card (protected)
-GET    /api/v1/auth/user/profile     # Get user profile (protected)
+POST   /api/v1/auth/admin/login       # Admin login with email & password
+                                     # Returns: { success: true/false, message, admin: {...} }
+
+POST   /api/v1/auth/admin/logout      # Admin logout, clears token cookie
+                                     # Returns: { success: true, message }
 ```
 
-### Admin Operations (6/6 Completed ✅)
+### User Authentication Routes (5/5 Completed ✅)
 
 ```
-POST   /api/v1/admin/create-society        # Create new society (Super Admin only)
-GET    /api/v1/admin/events                # Get society events (Society Admin only)
-POST   /api/v1/admin/events                # Create event with banner (Society Admin only)
-DELETE /api/v1/admin/events/:id            # Delete event (Society Admin only)
-PATCH  /api/v1/admin/users/:id/approve    # Approve user registration (Super Admin only)
-PATCH  /api/v1/admin/users/:id/reject     # Reject user registration (Super Admin only)
+POST   /api/v1/auth/user/register     # User registration with Aadhaar & ID card upload
+                                      # Returns: { success: true/false, message, user: {...} }
+
+POST   /api/v1/auth/user/login        # User login with email & password
+                                      # Returns: { success: true/false, message, user: {...} }
+
+POST   /api/v1/auth/user/logout       # User logout, clears token cookie
+                                      # Returns: { success: true, message }
+
+PATCH  /api/v1/auth/user/reupload-documents   # Reupload Aadhaar/ID card (protected)
+                                               # Returns: { success: true/false, message }
+
+GET    /api/v1/auth/user/profile      # Get user profile (protected)
+                                      # Returns: { success: true, user: {...} }
 ```
 
-### Event Management (2/2 Completed ✅)
+### Admin Operations Routes (6/6 Completed ✅)
 
 ```
-GET    /api/v1/events                # Get all events with details
-GET    /api/v1/events/:id            # Get specific event details
+POST   /api/v1/admin/create-society         # Create new society (Super Admin only)
+                                           # Returns: { success: true/false, message, society: {...} }
+
+GET    /api/v1/admin/events                 # Get society events (Society Admin only)
+                                           # Returns: { success: true, count, events: [...] }
+
+POST   /api/v1/admin/events                 # Create event with banner (Society Admin only)
+                                           # Returns: { success: true/false, message, event: {...} }
+
+DELETE /api/v1/admin/events/:id             # Delete event (Society Admin only)
+                                           # Returns: { success: true/false, message }
+
+PATCH  /api/v1/admin/users/:id/approve     # Approve user registration (Super Admin only)
+                                           # Returns: { success: true, message, qrToken }
+
+PATCH  /api/v1/admin/users/:id/reject      # Reject user registration (Super Admin only)
+                                           # Returns: { success: true, message }
 ```
 
-### QR & Entry Pass Validation (1/1 Completed ✅)
+### Event Management Routes (5/5 Completed ✅)
 
 ```
-GET    /api/v1/qr/validate/:token    # Validate QR token for entry pass
+GET    /api/v1/events                        # Get all events with details (public)
+                                            # Returns: { success: true, count, events: [...] }
+
+GET    /api/v1/events/:id                    # Get specific event details (public)
+                                            # Returns: { success: true, event: {...} }
+
+POST   /api/v1/events/:eventId/participate   # Participate in a solo event (protected)
+                                            # Returns: { success: true/false, message }
+
+POST   /api/v1/events/:eventId/create-team   # Create a team for a group event (protected)
+                                            # Returns: { success: true/false, message, team: {...} }
+
+POST   /api/v1/events/:eventId/submit        # Submit entry for an event (protected)
+                                            # Returns: { success: true, message }
+```
+
+### Team Operations Routes (1/1 Completed ✅)
+
+```
+POST   /api/v1/team/join          # Join a team using team code (protected)
+                                 # Returns: { success: true/false, message }
+```
+
+### QR & Entry Pass Validation Routes (1/1 Completed ✅)
+
+```
+GET    /api/v1/qr/validate/:token    # Validate QR token for entry pass (public)
+                                     # Returns: { success: true/false, message, valid_user: bool, user: {...} }
 ```
 
 ---

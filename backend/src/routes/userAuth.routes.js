@@ -1,5 +1,5 @@
 import express from 'express';
-import { reuploadDocumentsController, userLoginController, userLogoutController, userProfileController, userRegisterController } from '../controllers/userAuth.controller.js';
+import { reuploadDocumentsController, userLoginController, userLogoutController, userProfileController, userRegisterController, checkAuthController } from '../controllers/userAuth.controller.js';
 import { upload } from '../middleware/upload.middleware.js';
 import { protectUser } from '../middleware/userAuth.middleware.js';
 
@@ -26,6 +26,10 @@ router.patch(
 
 
 router.post('/logout', userLogoutController);
-
+router.get(
+    "/check",
+    protectUser,
+    checkAuthController
+);
 router.get('/profile', protectUser, userProfileController);
 export default router;  

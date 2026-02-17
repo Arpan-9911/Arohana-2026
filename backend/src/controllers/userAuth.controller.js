@@ -55,9 +55,10 @@ export async function userRegisterController(req, res) {
             },
         });
     } catch (error) {
-        console.error(error)
+        console.error("Error in userRegisterController", error);
         return res.status(500).json({
-            message: "Server Error",
+            success: false,
+            message: "Internal server error",
         });
     }
 }
@@ -106,9 +107,10 @@ export async function userLoginController(req, res) {
         });
 
     } catch (error) {
-        console.error(error);
+        console.error("Error in userLoginController", error);
         return res.status(500).json({
-            message: "Server Error",
+            success: false,
+            message: "Internal server error",
         });
     }
 }
@@ -179,8 +181,33 @@ export async function reuploadDocumentsController(req, res) {
         });
 
     } catch (err) {
+        console.error("Error in reuploadDocumentsController", err);
         return res.status(500).json({
-            message: err.message,
+            success: false,
+            message: "Internal server error",
+        });
+    }
+}
+
+export async function checkAuthController(req, res) {
+    try {
+        const user = req.user;
+
+        return res.status(200).json({
+            success: true,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                status: user.status, // pending / approved
+                qrToken: user.qrToken || null,
+            },
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
         });
     }
 }
