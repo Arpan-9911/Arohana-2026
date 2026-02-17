@@ -34,6 +34,6 @@ export const getUserProfile = async () => {
 };
 
 export const getUserParticipation = async () => {
-  const response = await api.get("/auth/users/me/participation");
+  const response = await api.get("/users/me/participations");
   return response.data;
 };

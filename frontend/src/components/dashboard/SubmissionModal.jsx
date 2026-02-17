@@ -1,46 +1,60 @@
 import { motion } from "framer-motion";
-import { UploadCloud, UploadCloudIcon, X } from "lucide-react";
-import { useState, useRef } from "react";
+import { X, Link as LinkIcon, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { submitEvent } from "../../lib/event.service";
 
 export default function SubmissionModal({ isOpen, onClose, event }) {
-  const [files, setFiles] = useState([]);
+  const [url, setUrl] = useState("");
   const [error, setError] = useState("");
-  const inputRef = useRef(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const MAX_SIZE = 200 * 1024 * 1024; // 200MB
+  if (!isOpen) return null;
 
-  const handleFiles = (selectedFiles) => {
-    const fileArray = Array.from(selectedFiles);
-
-    const newTotalSize = [...files, ...fileArray].reduce(
-      (acc, file) => acc + file.size,
-      0,
+  const isValidGoogleDriveLink = (link) => {
+    return (
+      link.includes("drive.google.com") &&
+      (link.includes("/file/") || link.includes("open?id="))
     );
+  };
 
-    if (newTotalSize > MAX_SIZE) {
-      setError("Total file size exceeds 200MB limit.");
+  const handleSubmit = async () => {
+    if (!url.trim()) {
+      setError("Please enter your Google Drive link.");
       return;
     }
 
-    setError("");
-    setFiles((prev) => [...prev, ...fileArray]);
+    if (!isValidGoogleDriveLink(url)) {
+      setError("Please enter a valid Google Drive public link.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      setError("");
+
+      const response = await submitEvent(event.id, url);
+
+      if (response.data.success) {
+        toast.success("Submission successful 🎉");
+
+        setUrl("");
+        onClose();
+      }
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || "Submission failed"
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    handleFiles(e.dataTransfer.files);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
   const handleClose = () => {
-    setFiles([]);
+    setUrl("");
     setError("");
     onClose();
   };
-
-  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background-dark/80 backdrop-blur-md">
@@ -49,9 +63,9 @@ export default function SubmissionModal({ isOpen, onClose, event }) {
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.2 }}
         className="w-full max-w-md rounded-2xl 
-  bg-linear-to-br from-[#2a0f2a] via-[#1a0b18] to-[#120811]
-  border border-white/10 shadow-[0_0_60px_rgba(238,43,205,0.15)]
-  backdrop-blur-2xl overflow-hidden relative text-white"
+        bg-linear-to-br from-[#2a0f2a] via-[#1a0b18] to-[#120811]
+        border border-white/10 shadow-[0_0_60px_rgba(238,43,205,0.15)]
+        backdrop-blur-2xl overflow-hidden relative text-white"
       >
         <div className="p-8 space-y-6">
           {/* Header */}
@@ -61,7 +75,7 @@ export default function SubmissionModal({ isOpen, onClose, event }) {
                 Submit Your Project
               </h2>
               <p className="text-white/40 text-sm mt-1">
-                Upload files for {event?.title}
+                Paste Google Drive link for {event?.title}
               </p>
             </div>
 
@@ -73,88 +87,63 @@ export default function SubmissionModal({ isOpen, onClose, event }) {
             </button>
           </div>
 
-          {/* Upload Box */}
-          <div
-            onClick={() => inputRef.current.click()}
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            className="border-2 border-dashed border-white/20 
-      rounded-2xl p-8 flex flex-col items-center justify-center 
-      gap-4 bg-white/2 
-      hover:border-primary/50 hover:bg-primary/4 
-      transition-all cursor-pointer group"
-          >
-            <div
-              className="w-14 h-14 rounded-full 
-      bg-primary/20 flex items-center justify-center 
-      text-primary text-2xl"
-            >
-              <UploadCloud size={28} />
+          {/* Input Field */}
+          <div className="space-y-2">
+            <label className="text-xs uppercase tracking-widest text-white/40">
+              Google Drive Public Link
+            </label>
+
+            <div className="relative">
+              <LinkIcon
+                size={18}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40"
+              />
+              <input
+                type="text"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://drive.google.com/file/..."
+                className="w-full pl-12 pr-4 py-4 rounded-xl 
+                bg-white/5 border border-white/10 
+                focus:outline-none focus:border-primary/50
+                text-white placeholder-white/30 transition-all"
+                disabled={submitting}
+              />
             </div>
 
-            <div className="text-center">
-              <p className="font-bold text-white/80">
-                Click or drag files to upload
-              </p>
-              <p className="text-xs text-white/40 mt-1">
-                PDF, DOCX or ZIP (Max. 200MB)
-              </p>
-            </div>
+            <p className="text-xs text-white/40">
+              Make sure the file access is set to <b>"Anyone with the link can view"</b>
+            </p>
 
-            <input
-              ref={inputRef}
-              type="file"
-              multiple
-              className="hidden"
-              onChange={(e) => handleFiles(e.target.files)}
-            />
+            {error && (
+              <p className="text-red-400 text-xs mt-2">{error}</p>
+            )}
           </div>
-
-          {/* Error */}
-          {error && <p className="text-red-400 text-xs">{error}</p>}
-
-          {/* Files Selected */}
-          {files.length > 0 && (
-            <div
-              className="bg-white/5 border border-white/10 
-      rounded-2xl p-4 space-y-3"
-            >
-              <p className="text-xs uppercase tracking-widest text-white/40">
-                Files Selected
-              </p>
-
-              {files.map((file, index) => (
-                <div
-                  key={index}
-                  className="flex justify-between items-center text-sm text-white/80"
-                >
-                  <span className="truncate max-w-[70%]">
-                    {index + 1}. {file.name}
-                  </span>
-
-                  <span className="text-white/40 text-xs">
-                    {(file.size / (1024 * 1024)).toFixed(2)} MB
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
 
           {/* Confirm Button */}
           <button
-            disabled={files.length === 0}
+            onClick={handleSubmit}
+            disabled={submitting}
             className={`w-full py-4 rounded-full font-bold text-white
-      bg-linear-to-r from-pink-500 to-primary
-      shadow-[0_10px_40px_rgba(238,43,205,0.4)]
-      transition-all duration-300
-      ${files.length === 0 ? "opacity-50 cursor-not-allowed" : "hover:scale-[1.02]"}`}
+            bg-linear-to-r from-pink-500 to-primary
+            shadow-[0_10px_40px_rgba(238,43,205,0.4)]
+            transition-all duration-300
+            ${submitting
+                ? "opacity-60 cursor-not-allowed"
+                : "hover:scale-[1.02]"
+              }`}
           >
-            Confirm Submission
+            {submitting ? (
+              <div className="flex items-center justify-center gap-2">
+                <Loader2 size={18} className="animate-spin" />
+                Submitting...
+              </div>
+            ) : (
+              "Confirm Submission"
+            )}
           </button>
         </div>
       </motion.div>
-
-      {error && <p className="text-red-400 text-xs">{error}</p>}
     </div>
   );
 }

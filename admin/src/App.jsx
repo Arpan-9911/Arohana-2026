@@ -7,29 +7,33 @@ import PublicRoute from "./routes/PublicRoute";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import ParticipantsPage from "./pages/dashboard/Participants";
 import SocietiesPage from "./pages/dashboard/Society";
+import { Toaster } from "sonner";
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <Toaster position="bottom-right" richColors />
+      <Routes>
 
-      {/* public */}
-      <Route element={<PublicRoute />}>
-        <Route path="/login" element={<Login />} />
-      </Route>
+        {/* public */}
+        <Route element={<PublicRoute />}>
+          <Route path="/login" element={<Login />} />
+        </Route>
 
-      {/* protected */}
-      <Route element={<ProtectedRoute />}>
-        <Route path="/" element={<SocietiesPage />} />
-        <Route path="/participants" element={<ParticipantsPage />} />
-        <Route path="/society" element={<SocietiesPage />} />
+        {/* protected */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<SocietiesPage />} />
+          <Route path="/participants" element={<ParticipantsPage />} />
+          <Route path="/society" element={<SocietiesPage />} />
 
-      </Route>
+        </Route>
 
 
-      <Route path="/logout" element={<LogoutPage />} />
+        <Route path="/logout" element={<LogoutPage />} />
 
-      {/* fallback */}
-      <Route path="/*" element={<NotFound />} />
-    </Routes>
+        {/* fallback */}
+        <Route path="/*" element={<NotFound />} />
+      </Routes>
+    </>
   )
 }

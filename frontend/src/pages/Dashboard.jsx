@@ -19,10 +19,7 @@ export default function Dashboard() {
         <EntryPassModal
           isOpen={isOpen}
           onClose={() => setIsOpen(false)}
-          user={{
-            name: user?.name || "User",
-            id: user?.id || "ARH-2025-XXXX",
-          }}
+          user={user}
         />
 
         <OperationsSection />

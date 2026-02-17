@@ -1,38 +1,26 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link, useParams } from "react-router-dom";
-import { Loader2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  getEventById,
-  participateSolo,
-  createTeam,
-  joinTeam,
-} from "../lib/event.service";
-import {
-  getUserParticipation,
-} from "../lib/user.service";
+import { useNavigate, Link, useParams } from "react-router-dom"
+import { Loader2 } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { getEventById, participateSolo, createTeam, joinTeam } from "../lib/event.service";
+import { getUserProfile, getUserParticipation } from "../lib/user.service";
 import { toast } from "sonner";
 import { useUserStore } from "../store/user.store";
 
 export default function EventDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useUserStore();
-
+  const { isAuthenticated } = useUserStore();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [participationLoading, setParticipationLoading] = useState(true);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState("create");
   const [teamName, setTeamName] = useState("");
   const [teamCode, setTeamCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [isAlreadyParticipating, setIsAlreadyParticipating] = useState(false);
-  const userStatus = user?.status;
+  const [userStatus, setUserStatus] = useState(null);
 
-  /* ---------------- FETCH EVENT ---------------- */
   useEffect(() => {
     const fetchEvent = async () => {
       try {
@@ -46,100 +34,54 @@ export default function EventDetails() {
           navigate("/events");
         }
       } catch (error) {
-        toast.error(error.response?.data?.message || "Failed to load event");
+        console.error("Error fetching event:", error);
+        toast.error("Failed to load event details");
         navigate("/events");
       } finally {
         setLoading(false);
       }
     };
-
-    if (id) fetchEvent();
+    if (id) {
+      fetchEvent();
+    }
   }, [id, navigate]);
 
-  /* ---------------- CHECK PARTICIPATION ---------------- */
-  useEffect(() => {
-    const fetchParticipation = async () => {
-      if (!isAuthenticated || !id) {
-        setParticipationLoading(false);
-        return;
-      }
+  
 
-      try {
-        const res = await getUserParticipation();
-
-        if (res.success) {
-          const already = res.participations.find(
-            (p) => p.event?._id === id
-          );
-          setIsAlreadyParticipating(!!already);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setParticipationLoading(false);
-      }
-    };
-
-    fetchParticipation();
-  }, [isAuthenticated, id]);
-
-  /* ---------------- VALIDATION ---------------- */
-  const validateUser = () => {
-    if (!isAuthenticated) {
-      toast.error("Please login first");
-      navigate("/login");
-      return false;
-    }
-
-    if (userStatus !== "approved") {
-      toast.error("Wait for admin approval");
-      return false;
-    }
-
-    if (isAlreadyParticipating) {
-      toast.error("You are already registered for this event");
-      return false;
-    }
-
-    return true;
-  };
-
-  /* ---------------- REGISTER CLICK ---------------- */
   const handleRegisterClick = () => {
-    if (!validateUser()) return;
+    if (!isAuthenticated) {
+      toast.error("Please login to register for events");
+      navigate("/login");
+      return;
+    }
 
     if (event.type === "group") {
       setIsModalOpen(true);
     } else {
       handleSoloRegistration();
     }
-  };
+  }
 
-  /* ---------------- SOLO ---------------- */
   const handleSoloRegistration = async () => {
-    if (!validateUser()) return;
-
     try {
       setIsSubmitting(true);
       const response = await participateSolo(event._id);
 
       if (response.success) {
-        toast.success("Successfully registered!");
+        toast.success("Successfully registered for the event!");
         navigate("/dashboard");
       }
     } catch (error) {
+      console.error("Registration error:", error);
       toast.error(error.response?.data?.message || "Registration failed");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  /* ---------------- CREATE TEAM ---------------- */
   const handleCreateTeam = async () => {
-    if (!validateUser()) return;
-
     if (!teamName.trim()) {
-      toast.error("Enter team name");
+      toast.error("Please enter a team name");
       return;
     }
 
@@ -148,22 +90,21 @@ export default function EventDetails() {
       const response = await createTeam(event._id, teamName.trim());
 
       if (response.success) {
-        toast.success(`Team created! Code: ${response.team.teamCode}`);
+        toast.success(`Team created! Share code: ${response.team.teamCode}`);
+        setIsModalOpen(false);
         navigate("/dashboard");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Team creation failed");
+      console.error("Team creation error:", error);
+      toast.error(error.response?.data?.message || "Failed to create team");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  /* ---------------- JOIN TEAM ---------------- */
   const handleJoinTeam = async () => {
-    if (!validateUser()) return;
-
     if (!teamCode.trim()) {
-      toast.error("Enter team code");
+      toast.error("Please enter a team code");
       return;
     }
 
@@ -172,18 +113,19 @@ export default function EventDetails() {
       const response = await joinTeam(teamCode.trim());
 
       if (response.success) {
-        toast.success("Joined team successfully!");
+        toast.success("Successfully joined the team!");
+        setIsModalOpen(false);
         navigate("/dashboard");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Join failed");
+      console.error("Join team error:", error);
+      toast.error(error.response?.data?.message || "Failed to join team");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  /* ---------------- LOADING ---------------- */
-  if (loading || participationLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-foreground flex items-center justify-center text-white">
         <Loader2 className="animate-spin w-12 h-12" />
@@ -194,83 +136,77 @@ export default function EventDetails() {
   if (!event) {
     return (
       <div className="min-h-screen bg-foreground flex items-center justify-center text-white">
-        Event not found
+        <div>Event not found</div>
       </div>
     );
   }
 
-  const societyName = event.society?.name || "Unknown";
-  const eventImage = event.bannerImage || "/events-bg-top.png";
-  const eventTime = new Date(event.eventDate).toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
-  const registerDisabled =
-    isSubmitting ||
-    userStatus !== "approved" ||
-    isAlreadyParticipating;
-
-  /* ---------------- UI (UNCHANGED DESIGN) ---------------- */
+  const societyName = event.society?.name || event.society || "Unknown";
+  const eventImage = event.image || event.imageUrl || "/events-bg-top.png";
+  const eventTime = event.time || new Date(event.eventDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const eventVenue = event.venue || event.location || "TBA";
+  const eventAbout = event.about || event.description || "No description available";
 
   return (
     <section className="relative w-full min-h-screen bg-[#0a0a0a] text-white overflow-y-auto py-10 px-4 flex justify-center md:items-center md:pt-30">
+      {/* Background Layers */}
       <img src="/events-bg-top.png" alt="" className="fixed inset-0 w-full h-full object-cover opacity-20 pointer-events-none" />
       <div className="fixed inset-0 bg-linear-to-b from-black/60 via-black/80 to-[#0a0a0a] pointer-events-none" />
 
-      <div className="relative z-10 w-full max-w-3xl md:max-w-6xl flex flex-col">
+      <div className="relative z-10 w-full max-w-3xl md:max-w-6xl flex flex-col animate-fade-in-up">
 
-        <Link to="/events" className="text-pink-400 font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2 w-fit">
+        <Link to="/events" className="text-pink-400 hover:text-pink-300 font-bold uppercase tracking-widest text-xs mb-6 flex items-center gap-2 w-fit">
           ← Back to Events
         </Link>
 
         <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl grid grid-cols-1 md:grid-cols-2">
 
-          {/* LEFT */}
           <div className="flex flex-col h-full bg-[#121212] md:border-r border-white/10">
+            {/* Image Section */}
             <div className="w-full h-64 md:h-80 relative shrink-0">
-              <img src={eventImage} alt={event.title} className="w-full h-full object-cover" />
-              <div className="absolute top-4 right-4 bg-pink-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
+              <img src={eventImage} alt={event.name} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-linear-to-t from-[#121212] via-transparent to-transparent" />
+              <div className="absolute top-4 right-4 bg-pink-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-lg">
                 {event.type}
               </div>
             </div>
 
+            {/* Description Content */}
             <div className="p-6 md:p-8 flex flex-col grow">
-              <h4 className="text-pink-500 font-bold uppercase text-xs mb-1">{societyName}</h4>
-              <h1 className="text-3xl md:text-5xl font-black mb-4">{event.title}</h1>
-
-              <div className="mb-6 text-gray-400 text-sm">
-                🕒 {eventTime} <br />
-                📍 {event.location}
+              <div className="mb-6">
+                <h4 className="text-pink-500 font-bold tracking-widest uppercase text-xs mb-1">{societyName}</h4>
+                <h1 className="text-3xl md:text-5xl font-black text-white mb-4 leading-tight">{event.name}</h1>
+                <div className="flex flex-wrap gap-3">
+                  <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-md text-xs text-gray-300">🕒 {eventTime}</span>
+                  <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-md text-xs text-gray-300">📍 {eventVenue}</span>
+                </div>
               </div>
 
-              <p className="text-gray-400 text-sm mb-8">{event.description}</p>
+              <div className="mb-8">
+                <h3 className="text-md font-bold text-white uppercase tracking-wider mb-2 border-l-2 border-pink-500 pl-3">About</h3>
+                <p className="text-gray-400 text-sm md:text-base leading-relaxed">{eventAbout}</p>
+              </div>
 
               <div className="mt-auto hidden md:block pt-6">
                 <button
                   onClick={handleRegisterClick}
-                  disabled={registerDisabled}
-                  className="w-full bg-linear-to-r from-pink-600 to-purple-600 text-white font-bold py-4 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isSubmitting}
+                  className="w-full bg-linear-to-r from-pink-600 to-purple-600 hover:scale-[1.02] text-white font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(236,72,153,0.3)] transition-all uppercase tracking-widest text-md disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isAlreadyParticipating
-                    ? "Already Registered"
-                    : isSubmitting
-                    ? "Processing..."
-                    : userStatus !== "approved"
-                    ? "Waiting for Approval"
-                    : "Register Now"}
+                  {isSubmitting ? "Processing..." : "Register Now"}
                 </button>
               </div>
             </div>
           </div>
+
           <div className="p-6 md:p-8 bg-[#121212] md:bg-white/5 flex flex-col h-full overflow-y-auto custom-scrollbar">
 
             {/* General Rules */}
-            {event.generalInstructions && event.generalInstructions.length > 0 && (
+            {event.generalRules && event.generalRules.length > 0 && (
               <div className="mb-8">
-                <h3 className="text-md font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-pink-500 pl-3">General Instructions</h3>
+                <h3 className="text-md font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-pink-500 pl-3">General Rules</h3>
                 <ul className="space-y-3 bg-white/5 p-4 rounded-xl border border-white/5">
-                  {event.generalInstructions.map((r, i) => (
+                  {event.generalRules.map((r, i) => (
                     <li key={i} className="text-sm text-gray-300 flex gap-3 items-start">
                       <span className="text-pink-500 mt-1">•</span>
                       <span>{r}</span>
@@ -303,10 +239,10 @@ export default function EventDetails() {
                           {event.rounds.length > 1 && (
                             <span className="md:hidden bg-pink-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Round {idx + 1}</span>
                           )}
-                          <h4 className="text-white font-bold text-md">{round.title}</h4>
+                          <h4 className="text-white font-bold text-md">{round.name}</h4>
                         </div>
 
-                        <p className="text-pink-400 text-xs mb-4 italic">{round.description}</p>
+                        <p className="text-pink-400 text-xs mb-4 italic">{round.instruction}</p>
 
                         {/* Round Specific Rules */}
                         {round.rules && (
@@ -440,7 +376,6 @@ export default function EventDetails() {
           </div>
         )}
       </AnimatePresence>
-
     </section>
-  );
+  )
 }

@@ -1,7 +1,10 @@
-import { ArrowBigDownDash, Download, DownloadIcon } from "lucide-react";
+import { ArrowBigDownDash } from "lucide-react";
 import { forwardRef } from "react";
+import { QRCodeCanvas } from "qrcode.react";
 
-const EntryPassTicket = forwardRef((props, ref) => {
+const EntryPassTicket = forwardRef(({ user }, ref) => {
+  const qrValue = `${window.location.origin}/pass/${user?.qrToken}`;
+
   return (
     <div
       ref={ref}
@@ -31,20 +34,25 @@ const EntryPassTicket = forwardRef((props, ref) => {
 
         {/* QR Section */}
         <div className="relative flex flex-col items-center mb-8">
-          {/* Floating QR */}
           <div className="relative bg-white p-3 rounded-xl shadow-[0_16px_32px_rgba(0,0,0,0.45)]">
             <div className="absolute -top-3 -left-3 w-8 h-8 border-t-3 border-l-3 border-primary rounded-tl-3xl"></div>
             <div className="absolute -top-3 -right-3 w-8 h-8 border-t-3 border-r-3 border-primary rounded-tr-3xl"></div>
             <div className="absolute -bottom-3 -left-3 w-8 h-8 border-b-3 border-l-3 border-primary rounded-bl-3xl"></div>
             <div className="absolute -bottom-3 -right-3 w-8 h-8 border-b-3 border-r-3 border-primary rounded-br-3xl"></div>
 
-            <div className="w-28 h-28 bg-gray-200 flex items-center justify-center text-black font-mono text-[10px]">
-              QR CODE
-            </div>
+            {/* ✅ REAL QR CODE */}
+            <QRCodeCanvas
+              value={qrValue}
+              size={112}
+              bgColor="#ffffff"
+              fgColor="#000000"
+              level="H"
+              includeMargin={false}
+            />
           </div>
 
           <p className="mt-6 text-xs uppercase tracking-widest text-white/50">
-            Scan at Gate #04
+            Scan at Gate
           </p>
         </div>
 
@@ -61,25 +69,10 @@ const EntryPassTicket = forwardRef((props, ref) => {
             <p className="text-white/40 text-[10px] uppercase tracking-widest">
               Participant
             </p>
-            <p className="font-bold text-base mt-1 uppercase">Johny Epstein</p>
-          </div>
-
-          <div className="text-right">
-            <p className="text-white/40 text-[10px] uppercase tracking-widest">
-              Pass Type
+            <p className="font-bold text-base mt-1 uppercase">
+              {user?.name}
             </p>
-            <span className="mt-1 inline-block bg-primary/20 text-primary px-3 py-1 rounded-full text-[10px] font-bold border border-primary/30">
-              PREMIUM ACCESS
-            </span>
           </div>
-
-          <div>
-            <p className="text-white/40 text-[10px] uppercase tracking-widest">
-              Reference ID
-            </p>
-            <p className="font-mono text-xs mt-1">#ARH-2025-7782</p>
-          </div>
-
           <div className="text-right">
             <p className="text-white/40 text-[10px] uppercase tracking-widest">
               Validity
@@ -87,16 +80,6 @@ const EntryPassTicket = forwardRef((props, ref) => {
             <p className="font-bold text-sm mt-1">MAR 14 - 16</p>
           </div>
         </div>
-
-        {/* CTA */}
-        <button
-          className="cursor-pointer w-full py-3 rounded-full font-medium text-white
-        bg-[#EE2BCD]
-        shadow-[0_8px_32px_rgba(238,43,205,0.32)]
-        hover:scale-[1.01] transition-all duration-300 flex items-center justify-center gap-2"
-        >
-          <ArrowBigDownDash size={18}/>DOWNLOAD PASS ( JPG )
-        </button>
       </div>
 
       {/* Bottom Security Strip */}

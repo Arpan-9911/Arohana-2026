@@ -1,19 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { NavHashLink } from "react-router-hash-link";
-
-const navLinks = [
-  { label: "Home", href: "/" },
-  { label: "Events", href: "/events" },
-  { label: "Dashboard", href: "/dashboard" },
-  { label: "Sponsors", href: "/#sponsors" },
-  { label: "FAQ", href: "/#faq" },
-];
+import { useUserStore } from "../store/user.store"
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { isAuthenticated, loading, checkAuth } = useUserStore();
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+  if(loading) return null;
+
+  
+  const navLinks = isAuthenticated ? [
+    { label: "Home", href: "/" },
+    { label: "Events", href: "/events" },
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Sponsors", href: "/#sponsors" },
+    { label: "FAQ", href: "/#faq" },
+  ] : [
+    { label: "Home", href: "/" },
+    { label: "Events", href: "/events" },
+    { label: "Login", href: "/login" },
+    { label: "Sponsors", href: "/#sponsors" },
+    { label: "FAQ", href: "/#faq" },
+  ];
 
   return (
     <motion.nav
