@@ -1,72 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-
-const EVENTS = {
-  day1: [
-    {
-      id: "codeblitz",
-      name: "CodeBlitz",
-      society: "TechWhiz",
-      type: "group",
-      time: "10:00 AM",
-      venue: "Main Lab",
-      about: "24-hour competitive coding marathon",
-      image: "/events-bg-top.png",
-    },
-    {
-      id: "designathon",
-      name: "Designathon",
-      society: "Abhivyakti",
-      type: "solo",
-      time: "11:30 AM",
-      venue: "Design Studio",
-      about: "UI/UX challenge with real briefs",
-      image: "/events-bg-top.png",
-    },
-    {
-      id: "debate",
-      name: "Parliamentary Debate",
-      society: "DebSoc",
-      type: "group",
-      time: "1:00 PM",
-      venue: "Auditorium",
-      about: "High-stakes structured debate",
-      image: "/events-bg-top.png",
-    },
-    {
-      id: "photowalk",
-      name: "PhotoWalk",
-      society: "TechWhiz",
-      type: "solo",
-      time: "3:00 PM",
-      venue: "Campus",
-      about: "Capture stories around campus",
-      image: "/events-bg-top.png",
-    },
-  ],
-  day2: [
-    {
-      id: "openmic",
-      name: "Open Mic",
-      society: "Literary",
-      type: "solo",
-      time: "11:00 AM",
-      venue: "Open Stage",
-      about: "Poetry, storytelling & standup",
-      image: "/events-bg-top.png",
-    },
-    {
-      id: "concert",
-      name: "Arohana Night Concert",
-      society: "Cultural Council",
-      type: "group",
-      time: "6:30 PM",
-      venue: "Main Ground",
-      about: "Live performances, lights & crowd energy",
-      image: "/events-bg-top.png",
-    },
-  ],
-};
+import { getAllEvents } from "../lib/event.service";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 const TimelineItem = ({ children, className, side, isConcert }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -111,8 +47,9 @@ export default function Events() {
   const [day, setDay] = useState("day1");
   const [society, setSociety] = useState("All");
   const [type, setType] = useState("All");
-
-  const societies = ["TechWhiz", "Abhivyakti", "DebSoc", "Pixels", "Literary"];
+  const [events, setEvents] = useState({ day1: [], day2: [] });
+  const [loading, setLoading] = useState(true);
+  const [societies, setSocieties] = useState([]);
 
   const [searchParams] = useSearchParams();
   const societyFromURL = searchParams.get("society");
@@ -128,11 +65,57 @@ export default function Events() {
     }
   }, [societyFromURL]);
 
-  const filteredEvents = EVENTS[day].filter((e) => {
-    const s = society === "All" || e.society === society;
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        const response = await getAllEvents();
+
+        if (response.success) {
+          // Group events by day (you may need to adjust based on your backend data structure)
+          // For now, assuming all events come in a single array
+          const allEvents = response.events || [];
+
+          // Extract unique societies
+          const uniqueSocieties = [...new Set(allEvents.map(e => e.society?.name || e.society).filter(Boolean))];
+          setSocieties(uniqueSocieties);
+
+          // Group by day based on eventDate or a day field
+          // This is a placeholder - adjust based on your actual data structure
+          const day1Events = allEvents.filter(e => {
+            // You might want to filter by actual date or a 'day' field
+            return true; // For now, show all in day1
+          });
+
+          setEvents({
+            day1: day1Events,
+            day2: [], // Populate if you have day2 events
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching events:", error);
+        toast.error("Failed to load events");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  const filteredEvents = events[day].filter((e) => {
+    const s = society === "All" || e.society?.name === society || e.society === society;
     const t = type === "All" || e.type === type;
     return s && t;
   });
+
+  if (loading) {
+    return (
+      <section className="relative w-full bg-foreground text-background min-h-dvh overflow-hidden px-4 flex items-center justify-center">
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      </section>
+    );
+  }
 
   return (
     <section className="relative w-full bg-foreground text-background min-h-dvh overflow-hidden px-4">
@@ -285,6 +268,12 @@ export default function Events() {
 }
 
 function EventCard({ event, isLeft }) {
+  const societyName = event.society?.name || event.society || "Unknown";
+  const eventImage = event.image || event.imageUrl || "/events-bg-top.png";
+  const eventTime = event.time || new Date(event.eventDate).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  const eventVenue = event.venue || event.location || "TBA";
+  const eventAbout = event.about || event.description || "No description available";
+
   return (
     <div
       className={`flex items-start md:gap-4 gap-2 max-md:flex-col ${isLeft ? "md:flex-row-reverse md:text-right md:ml-auto" : "md:text-left"
@@ -292,7 +281,7 @@ function EventCard({ event, isLeft }) {
     >
       {/* Small Image */}
       <img
-        src={event.image}
+        src={eventImage}
         alt={event.name}
         className="w-20 h-20 rounded-lg object-cover shrink-0"
       />
@@ -303,21 +292,21 @@ function EventCard({ event, isLeft }) {
           {event.name}
         </h3>
         <p className="text-xs font-semibold text-pink-600 uppercase tracking-wider">
-          {event.society}
+          {societyName}
         </p>
         <div
           className={`flex gap-3 text-xs text-gray-700 mt-1 ${isLeft ? "md:justify-end" : ""
             }`}
         >
-          <span>🕒 {event.time}</span>
-          <span>📍 {event.venue}</span>
+          <span>🕒 {eventTime}</span>
+          <span>📍 {eventVenue}</span>
         </div>
         <p className="text-sm text-gray-900 leading-relaxed mt-2">
-          {event.about}
+          {eventAbout}
         </p>
 
         <Link
-          to={`/events/${event.id}`}
+          to={`/events/${event._id}`}
           className="
             inline-block mt-3 px-4 py-2 rounded-md
             text-xs font-bold uppercase tracking-widest
