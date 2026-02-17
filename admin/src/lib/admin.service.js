@@ -25,11 +25,6 @@ export const rejectUser = async (id, reason) => {
   return response.data;
 };
 
-export const getDashboardStats = async () => {
-  const response = await api.get("/admin/stats");
-  return response.data;
-};
-
 export const loginAdmin = async (data) => {
   const response = await api.post("/auth/admin/login", data);
   return response.data;
@@ -37,5 +32,6 @@ export const loginAdmin = async (data) => {
 
 export const logoutAdmin = async () => {
   const response = await api.post("/auth/admin/logout");
+  localStorage.removeItem("user");
   return response.data;
 }

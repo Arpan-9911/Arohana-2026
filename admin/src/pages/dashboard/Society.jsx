@@ -2,34 +2,19 @@ import { useState, useEffect } from "react"
 import { DashboardLayout } from "@/layouts/DashboardLayout"
 import { Building2, MoreVertical, Plus, User, X } from "lucide-react"
 import { Button } from "@/components/ui/Button"
-import { getSocieties, createSociety } from "@/lib/admin.service"
 import { toast } from "sonner"
+import { useSocietyStore } from "@/store/society.store"
 
 export default function SocietiesPage() {
-
-  const [societies, setSocieties] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [formData, setFormData] = useState({ name: "", description: "", adminName: "", adminEmail: "", password: "" });
-  const [loading, setLoading] = useState(true);
-
-  const fetchSocieties = async () => {
-    try {
-      setLoading(true);
-      const data = await getSocieties();
-      if (data.success) {
-        setSocieties(data.societies);
-      }
-    } catch (error) {
-      console.error("Failed to fetch societies:", error);
-      toast.error("Failed to fetch societies");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { societies, loading, fetchSocieties, createSociety } = useSocietyStore()
 
   useEffect(() => {
-    fetchSocieties();
-  }, []);
+    if (!societies.length) {
+      fetchSocieties();
+    }
+  }, [fetchSocieties, societies]);
 
   const handleCreate = async (e) => {
     e.preventDefault()
@@ -41,15 +26,10 @@ export default function SocietiesPage() {
       adminPassword: formData.password,
     }
     try {
-      const response = await createSociety(newSocietyData);
-      if (response.success) {
-        toast.success("Society created successfully");
-        fetchSocieties();
-        setIsModalOpen(false)
-        setFormData({ name: "", description: "", adminName: "", adminEmail: "", password: "" });
-      }
+      await createSociety(newSocietyData)
+      setIsModalOpen(false)
+      setFormData({ name: "", description: "", adminName: "", adminEmail: "", password: "" })
     } catch (err) {
-      console.error(err);
       toast.error(err.response?.data?.message || "Failed to create society");
     }
   }
@@ -84,12 +64,12 @@ export default function SocietiesPage() {
                 <Button className="text-[#f1f1f1] hover:text-white"><MoreVertical className="w-5 h-5" /></Button>
               </div>
               <h3 className="text-xl font-bold text-white uppercase tracking-tight">{society.name}</h3>
-              <p className="text-xs text-[#f1f1f1] mb-4">Founded {new Date(society.createdAt).toLocaleDateString()}</p>
               <p className="text-[#f1f1f1] text-sm line-clamp-2 mb-6">
                 {society.description}
               </p>
               <div className="flex items-center gap-2 pt-4 border-t border-border/50 text-sm text-muted-foreground">
-                <User className="w-4 h-4 text-blue-500" /> Managed by Admin
+                <User className="w-4 h-4 text-blue-500" />
+                Managed by {society.admin?.name || "N/A"}
                 {/* <span className="ml-auto text-blue-500 hover:underline cursor-pointer font-medium">View Detail</span> */}
               </div>
             </div>

@@ -1,61 +1,40 @@
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
 import { DashboardLayout } from "@/layouts/DashboardLayout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/Button"
 import { Eye, Check, X } from "lucide-react"
-import { getUsers, approveUser, rejectUser } from "@/lib/admin.service"
-import { toast } from "sonner";
+import { toast } from "sonner"
+import { useParticipantsStore } from "@/store/participants.store"
 
 export default function ParticipantsPage() {
-  const [participants, setParticipants] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [selectedImage, setSelectedImage] = useState(null)
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false)
-
-  const fetchUsers = async () => {
-    try {
-      setLoading(true)
-      const data = await getUsers()
-      if (data.success) {
-        setParticipants(data.users)
-      }
-    } catch (error) {
-      console.error("Failed to fetch users:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const {
+    participants,
+    loading,
+    selectedParticipant,
+    fetchParticipants,
+    setSelectedParticipant,
+    approveParticipant,
+    rejectParticipant
+  } = useParticipantsStore()
 
   useEffect(() => {
-    fetchUsers()
-  }, [])
+    fetchParticipants()
+  }, [fetchParticipants])
 
   const handleApprove = async (id) => {
-    try {
-      const result = await approveUser(id)
-      if (result.success) {
-        toast.success("User Approved")
-        fetchUsers()
-      }
-    } catch (error) {
-      console.error(error)
-      alert(error.response?.data?.message || "Failed to approve")
+    const result = await approveParticipant(id)
+    if (result.success) {
+      toast.success("User Approved")
     }
   }
 
   const handleReject = async (id) => {
     const reason = prompt("Enter rejection reason:")
-    if (!reason) return;
-    try {
-      const result = await rejectUser(id, reason)
-      if (result.success) {
-        toast.success("User Rejected")
-        fetchUsers()
-      }
-    } catch (error) {
-      console.error(error)
-      alert(error.response?.data?.message || "Failed to reject")
+    if (!reason) return
+    const result = await rejectParticipant(id, reason)
+    if (result.success) {
+      toast.success("User Rejected")
     }
   }
 
@@ -64,96 +43,119 @@ export default function ParticipantsPage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Participants</h1>
-          <p className="text-muted-foreground mt-2">Manage and view all participants</p>
+          <p className="text-muted-foreground mt-2">
+            Manage and approve participants
+          </p>
         </div>
 
-        <Card className="bg-card border-border">
+        <Card>
           <CardHeader>
             <CardTitle>All Participants</CardTitle>
           </CardHeader>
+
           <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 text-muted-foreground font-medium">Name</th>
-                    <th className="text-left py-3 px-4 text-muted-foreground font-medium">Email</th>
-                    <th className="text-left py-3 px-4 text-muted-foreground font-medium">Status</th>
-                    <th className="text-left py-3 px-4 text-muted-foreground font-medium">Actions</th>
+                  <tr className="border-b">
+                    <th className="py-3 px-4 text-left">Name</th>
+                    <th className="py-3 px-4 text-left">Email</th>
+                    <th className="py-3 px-4 text-left">Status</th>
+                    <th className="py-3 px-4 text-left">Actions</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {loading ? (
-                    <tr><td colSpan="4" className="text-center py-4">Loading...</td></tr>
-                  ) : participants.map((participant) => (
-                    <tr key={participant._id} className="border-b border-border hover:bg-secondary/50 transition-colors">
-                      <td className="py-3 px-4 text-foreground">{participant.name}</td>
-                      <td className="py-3 px-4 text-foreground">{participant.email}</td>
-                      <td className="py-3 px-4">
-                        <Badge
-                          className={
-                            participant.status === "approved"
-                              ? "bg-green-500/20 text-green-400 border-0"
-                              : participant.status === "rejected"
-                                ? "bg-red-500/20 text-red-400 border-0"
-                                : "bg-yellow-500/20 text-yellow-400 border-0"
-                          }
-                        >
-                          {participant.status}
-                        </Badge>
+                    <tr>
+                      <td colSpan="4" className="text-center py-4">
+                        Loading...
                       </td>
-                      <td className="py-3 px-4 text-foreground font-semibold flex gap-2">
-                        {participant.aadharImage && (
+                    </tr>
+                  ) : (
+                    participants.map((participant) => (
+                      <tr key={participant._id} className="border-b hover:bg-secondary/50">
+                        <td className="py-3 px-4">{participant.name}</td>
+                        <td className="py-3 px-4">{participant.email}</td>
+                        <td className="py-3 px-4">
+                          <Badge
+                            className={
+                              participant.status === "approved"
+                                ? "bg-green-500/20 text-green-400"
+                                : participant.status === "rejected"
+                                ? "bg-red-500/20 text-red-400"
+                                : "bg-yellow-500/20 text-yellow-400"
+                            }
+                          >
+                            {participant.status}
+                          </Badge>
+                        </td>
+
+                        <td className="py-3 px-4 flex gap-2">
                           <Button
-                            variant="ghost"
                             size="sm"
-                            onClick={() => {
-                              setSelectedImage(participant.aadharImage)
-                              setIsViewModalOpen(true)
-                            }}
+                            variant="ghost"
+                            onClick={() => setSelectedParticipant(participant)}
                           >
                             <Eye className="w-4 h-4 text-blue-400" />
                           </Button>
-                        )}
-                        {participant.status === 'pending' && (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleApprove(participant._id)}
-                            >
-                              <Check className="w-4 h-4 text-green-400" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleReject(participant._id)}
-                            >
-                              <X className="w-4 h-4 text-red-400" />
-                            </Button>
-                          </>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
           </CardContent>
         </Card>
 
-        {/* View Image Modal */}
-        {isViewModalOpen && (
+        {/* DETAILS MODAL */}
+        {selectedParticipant && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsViewModalOpen(false)} />
-            <div className="relative max-w-3xl max-h-[90vh] bg-black border border-border rounded-lg overflow-hidden p-1">
-              <Button
-                className="absolute top-2 right-2 rounded-full p-1 bg-black/50 hover:bg-black text-white z-10"
-                onClick={() => setIsViewModalOpen(false)}
-              >
-                <X className="w-5 h-5" />
-              </Button>
-              <img src={selectedImage} alt="User Document" className="w-full h-full object-contain" />
+            <div
+              className="absolute inset-0 bg-black/80"
+              onClick={() => setSelectedParticipant(null)}
+            />
+
+            <div className="relative bg-card rounded-xl max-w-2xl w-full p-6 space-y-4">
+              <h2 className="text-xl font-bold">Participant Details</h2>
+
+              <div>
+                <p><strong>Name:</strong> {selectedParticipant.name}</p>
+                <p><strong>Email:</strong> {selectedParticipant.email}</p>
+                <p><strong>Status:</strong> {selectedParticipant.status}</p>
+                <p><strong>Registered:</strong> {new Date(selectedParticipant.createdAt).toLocaleString()}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <img
+                  src={selectedParticipant.aadharImage}
+                  alt="Aadhar"
+                  className="rounded-lg"
+                />
+                <img
+                  src={selectedParticipant.idCardImage}
+                  alt="ID Card"
+                  className="rounded-lg"
+                />
+              </div>
+
+              {selectedParticipant.status === "pending" && (
+                <div className="flex gap-4 justify-end pt-4">
+                  <Button
+                    onClick={() => handleApprove(selectedParticipant._id)}
+                  >
+                    Approve
+                  </Button>
+
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleReject(selectedParticipant._id)}
+                  >
+                    Reject
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         )}

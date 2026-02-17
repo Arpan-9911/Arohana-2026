@@ -2,7 +2,6 @@
 
 import { Menu, Bell, Settings, Search } from "lucide-react"
 import { Button } from "./ui/button"
-import { Link } from "react-router-dom"
 
 export default function TopBar({ onMenuClick }) {
   return (
@@ -29,11 +28,9 @@ export default function TopBar({ onMenuClick }) {
         <button className="p-2 text-foreground hover:bg-secondary rounded-lg transition-colors">
           <Settings size={20} />
         </button>
-        <Link to='/profile'>
-          <Button>
-            AS
-          </Button>
-        </Link>
+        <Button>
+          AS
+        </Button>
       </div>
     </div>
   )

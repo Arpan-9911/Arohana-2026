@@ -1,6 +1,4 @@
 import { Routes, Route } from "react-router-dom";
-import Home from "./pages/dashboard/Home";
-import ProfilePage from "./pages/dashboard/Profile";
 import NotFound from "./pages/NotFound";
 import LogoutPage from "./pages/dashboard/Logout";
 import Login from "./pages/login";
@@ -15,16 +13,14 @@ export default function App() {
     <Routes>
 
       {/* public */}
-      {/* <Route element={<PublicRoute />}> */}
+      <Route element={<PublicRoute />}>
         <Route path="/login" element={<Login />} />
-      {/* </Route> */}
+      </Route>
 
       {/* protected */}
       <Route element={<ProtectedRoute />}>
-
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<SocietiesPage />} />
         <Route path="/participants" element={<ParticipantsPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/society" element={<SocietiesPage />} />
 
       </Route>
