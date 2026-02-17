@@ -8,7 +8,6 @@ export default function Sidebar({ open, onToggle }) {
   const { location } = useLocation()
 
   const menuItems = [
-    { icon: Home, label: "Dashboard", href: "/" },
     { icon: BarChart3, label: "Society", href: "/society" },
     { icon: Users, label: "Participants", href: "/participants" },
   ]
@@ -64,18 +63,6 @@ export default function Sidebar({ open, onToggle }) {
               <span className="text-xs text-sidebar-foreground/60 font-medium">Theme</span>
               <ThemeToggle />
             </div>
-
-            {/* Profile Link */}
-            <Link
-              to="/profile"
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${location === "/profile"
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent"
-                }`}
-            >
-              <User size={20} />
-              <span className="font-medium">Profile</span>
-            </Link>
 
             {/* Logout Button */}
             <button

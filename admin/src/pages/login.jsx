@@ -21,7 +21,6 @@ export default function Login() {
       const response = await loginAdmin({ email, password })
       if (response.success) {
         localStorage.setItem("user", JSON.stringify(response.admin))
-        localStorage.setItem("token", response.token)
         toast.success("Login successful")
         navigate("/")
       }

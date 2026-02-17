@@ -18,11 +18,16 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: false
+}));
 
 app.use(cors({
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD'],
-    origin: ['https://ownhosting.whatever'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH'],
+    origin: [
+        'https://ownhosting.whatever',
+        "http://localhost:5173",
+    ],
     credentials: true
 }));
 
