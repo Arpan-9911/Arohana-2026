@@ -4,7 +4,6 @@ import { useAdminStore } from "../store/admin.store";
 
 const ProtectedSocietyRoute = ({ children }) => {
   const { isAuthenticated, admin, loading, checkAuth } = useAdminStore();
-  console.log(isAuthenticated);
 
   useEffect(() => {
     checkAuth();

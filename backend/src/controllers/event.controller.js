@@ -5,6 +5,7 @@ import Team from "../models/team.model.js";
 import Participation from "../models/participation.model.js";
 import generateTeamCode from "../utils/generateTeamCode.js";
 import Submission from "../models/submission.model.js";
+
 export async function getAllEventsController(req, res) {
     try {
         const events = await Event.find()

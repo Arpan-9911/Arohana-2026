@@ -1,53 +1,78 @@
 import { useState } from "react";
 import { CalendarDays, Clock } from "lucide-react";
+import { useEventStore } from "../store/event.store";
 
-const CreateEventForm = ({ onCreate }) => {
+const CreateEventForm = () => {
+  const { addEvent } = useEventStore();
+  const [loading, setLoading] = useState(false);
+  const [bannerFile, setBannerFile] = useState(null);
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    bannerImage: "",
     type: "solo",
-    minTeamSize: "",
-    maxTeamSize: "",
+    minTeamSize: 1,
+    maxTeamSize: 1,
     generalInstructions: [],
     rounds: [],
-    onlineSubmissionDeadline: "",
+    isOnlineSubmission: false,
     eventDate: "",
     eventTime: "",
+    onlineSubmissionDeadline: "",
     deadlineTime: "",
   });
 
+  const [instructionInput, setInstructionInput] = useState("");
   const [roundTitle, setRoundTitle] = useState("");
   const [roundDescription, setRoundDescription] = useState("");
   const [roundRules, setRoundRules] = useState([]);
   const [currentRule, setCurrentRule] = useState("");
   const [instructionInput, setInstructionInput] = useState("");
 
+  /* ================= General Change ================= */
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
-  /* ================= Banner Upload ================= */
+  /* ================= Banner ================= */
 
   const handleBannerUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setFormData({
-        ...formData,
-        bannerImage: reader.result, // Base64 stored
-      });
-    };
-    reader.readAsDataURL(file);
+    setBannerFile(file);
   };
 
-  /* ================= Add Rule ================= */
+  /* ================= Instructions ================= */
+
+  const addInstruction = () => {
+    if (!instructionInput.trim()) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      generalInstructions: [
+        ...prev.generalInstructions,
+        instructionInput.trim(),
+      ],
+    }));
+
+    setInstructionInput("");
+  };
+
+  const removeInstruction = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      generalInstructions: prev.generalInstructions.filter(
+        (_, i) => i !== index
+      ),
+    }));
+  };
+
+  /* ================= Rounds ================= */
 
   const addRule = () => {
     if (!currentRule.trim()) return;
@@ -59,385 +84,341 @@ const CreateEventForm = ({ onCreate }) => {
     setRoundRules(roundRules.filter((_, i) => i !== index));
   };
 
-  /* ================= Add Round ================= */
-
   const addRound = () => {
-    if (!roundTitle) return;
+    if (!roundTitle.trim()) return;
 
     const newRound = {
+      roundNumber: formData.rounds.length + 1,
       title: roundTitle,
       description: roundDescription,
       rules: roundRules,
     };
 
-    setFormData({
-      ...formData,
-      rounds: [...formData.rounds, newRound],
-    });
+    setFormData((prev) => ({
+      ...prev,
+      rounds: [...prev.rounds, newRound],
+    }));
 
     setRoundTitle("");
     setRoundDescription("");
     setRoundRules([]);
   };
 
-  const addInstruction = () => {
-    if (!instructionInput.trim()) return;
-    setFormData({
-      ...formData,
-      generalInstructions: [
-        ...formData.generalInstructions,
-        instructionInput.trim(),
-      ],
-    });
-    setInstructionInput("");
-  };
-
-  const removeInstruction = (index) => {
-    setFormData({
-      ...formData,
-      generalInstructions: formData.generalInstructions.filter(
-        (_, i) => i !== index
-      ),
-    });
-  };
-
   const removeRound = (indexToRemove) => {
-    setFormData({
-      ...formData,
-      rounds: formData.rounds.filter(
-        (_, index) => index !== indexToRemove
-      ),
-    });
-  };
+    const updatedRounds = formData.rounds
+      .filter((_, index) => index !== indexToRemove)
+      .map((round, index) => ({
+        ...round,
+        roundNumber: index + 1,
+      }));
 
+    setFormData((prev) => ({
+      ...prev,
+      rounds: updatedRounds,
+    }));
+  };
 
   /* ================= Submit ================= */
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const existingEvents =
-      JSON.parse(localStorage.getItem("societyEvents")) || [];
+    if (!bannerFile) {
+      alert("Banner image is required");
+      return;
+    }
 
-    const newEvent = {
-      ...formData,
-      eventDate: `${formData.eventDate} ${formData.eventTime}`,
-      onlineSubmissionDeadline: `${formData.onlineSubmissionDeadline} ${formData.deadlineTime}`,
-      id: Date.now(),
-    };
+    if (formData.type === "group") {
+      if (formData.minTeamSize > formData.maxTeamSize) {
+        alert("Min team size cannot be greater than max team size");
+        return;
+      }
+    }
 
-    const updatedEvents = [...existingEvents, newEvent];
-    localStorage.setItem("societyEvents", JSON.stringify(updatedEvents));
+    setLoading(true);
 
-    onCreate(updatedEvents);
+    try {
+      const form = new FormData();
 
+      form.append("title", formData.title);
+      form.append("description", formData.description);
+      form.append("type", formData.type);
+      form.append("isOnlineSubmission", formData.isOnlineSubmission);
+
+      if (formData.type === "group") {
+        form.append("minTeamSize", formData.minTeamSize);
+        form.append("maxTeamSize", formData.maxTeamSize);
+      }
+
+      const eventDateTime = new Date(
+        `${formData.eventDate}T${formData.eventTime}`
+      );
+      form.append("eventDate", eventDateTime.toISOString());
+
+      if (formData.isOnlineSubmission) {
+        const deadlineDateTime = new Date(
+          `${formData.onlineSubmissionDeadline}T${formData.deadlineTime}`
+        );
+        form.append(
+          "onlineSubmissionDeadline",
+          deadlineDateTime.toISOString()
+        );
+      }
+
+      form.append("rounds", JSON.stringify(formData.rounds));
+      form.append(
+        "generalInstructions",
+        JSON.stringify(formData.generalInstructions)
+      );
+
+      form.append("banner_image", bannerFile);
+
+      const result = await addEvent(form);
+
+      if (result.success) {
+        alert("Event created successfully");
+        resetForm();
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to create event");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetForm = () => {
     setFormData({
       title: "",
       description: "",
-      bannerImage: "",
       type: "solo",
-      minTeamSize: "",
-      maxTeamSize: "",
+      minTeamSize: 1,
+      maxTeamSize: 1,
       generalInstructions: [],
       rounds: [],
-      onlineSubmissionDeadline: "",
+      isOnlineSubmission: false,
       eventDate: "",
       eventTime: "",
+      onlineSubmissionDeadline: "",
       deadlineTime: "",
     });
+    setBannerFile(null);
   };
 
+  /* ================= UI ================= */
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10 space-y-4"
-    >
-      <h2 className="text-xl font-semibold text-purple-400">
-        Create New Event
-      </h2>
+    <div className="min-h-screen text-white">
+      <div className="bg-white/5 p-8 rounded-2xl backdrop-blur-xl border border-white/10 space-y-8">
 
-      {/* Title */}
-      <input
-        name="title"
-        value={formData.title}
-        onChange={handleChange}
-        placeholder="Event Title"
-        className="w-full p-3 bg-black/40 rounded-lg"
-        required
-      />
+        <h1 className="text-3xl font-bold text-purple-400">
+          Create New Event
+        </h1>
 
-      {/* Description */}
-      <textarea
-        name="description"
-        value={formData.description}
-        onChange={handleChange}
-        placeholder="Description"
-        className="w-full p-3 bg-black/40 rounded-lg"
-      />
+        <form onSubmit={handleSubmit} className="space-y-6">
 
-      {/* ================= Upload Banner ================= */}
-      <div>
-        <label className="block text-white/70 mb-2">
-          Upload Banner Image
-        </label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleBannerUpload}
-          className="w-full p-3 bg-black/40 rounded-lg"
-        />
-      </div>
-
-      {/* Type */}
-      <select
-        name="type"
-        value={formData.type}
-        onChange={handleChange}
-        className="w-full p-3 bg-black/40 rounded-lg"
-      >
-        <option value="solo">Solo</option>
-        <option value="group">Group</option>
-      </select>
-
-      {formData.type === "group" && (
-        <div className="grid grid-cols-2 gap-4">
+          {/* Title */}
           <input
-            name="minTeamSize"
-            value={formData.minTeamSize}
+            name="title"
+            value={formData.title}
             onChange={handleChange}
-            placeholder="Min Team Size"
-            type="number"
-            className="p-3 bg-black/40 rounded-lg"
+            placeholder="Event Title"
+            className="w-full p-3 bg-black/40 rounded-lg"
+            required
           />
-          <input
-            name="maxTeamSize"
-            value={formData.maxTeamSize}
+
+          {/* Description */}
+          <textarea
+            name="description"
+            value={formData.description}
             onChange={handleChange}
-            placeholder="Max Team Size"
-            type="number"
-            className="p-3 bg-black/40 rounded-lg"
+            placeholder="Event Description"
+            className="w-full p-3 bg-black/40 rounded-lg"
+            required
           />
-        </div>
-      )}
 
-      {/* General Instructions */}
-      <div className="bg-black/30 p-4 rounded-xl space-y-3">
-        <h3 className="text-purple-300">General Instructions</h3>
-
-        <div className="flex gap-2">
+          {/* Banner */}
           <input
-            value={instructionInput}
-            onChange={(e) => setInstructionInput(e.target.value)}
-            placeholder="Add Instruction"
-            className="flex-1 p-2 bg-black/40 rounded"
+            type="file"
+            accept="image/*"
+            onChange={handleBannerUpload}
+            className="w-full p-3 bg-black/40 rounded-lg"
+            required
           />
-          <button
-            type="button"
-            onClick={addInstruction}
-            className="bg-purple-600 px-4 py-2 rounded-lg"
+
+          {/* Type */}
+          <select
+            name="type"
+            value={formData.type}
+            onChange={handleChange}
+            className="w-full p-3 bg-black/40 rounded-lg"
           >
-            Add
-          </button>
-        </div>
+            <option value="solo">Solo</option>
+            <option value="group">Group</option>
+          </select>
 
-        <ul className="space-y-1 text-sm text-white/70">
-          {formData.generalInstructions.map((instruction, index) => (
-            <li key={index} className="flex justify-between items-center">
-              {instruction}
-              <button
-                type="button"
-                onClick={() => removeInstruction(index)}
-                className="text-red-400 text-xs"
-              >
-                remove
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* ================= DATE & TIME ================= */}
-
-      <div className="grid md:grid-cols-2 gap-6">
-
-        <div>
-          <label className="block text-white/70 mb-2">
-            Event Date
-          </label>
-
-          <div className="flex gap-3">
-
-            <div className="relative flex-1">
-              <CalendarDays size={18} className="absolute left-3 top-3 text-purple-400" />
+          {formData.type === "group" && (
+            <div className="grid grid-cols-2 gap-4">
               <input
-                type="date"
-                name="eventDate"
-                value={formData.eventDate}
+                type="number"
+                name="minTeamSize"
+                value={formData.minTeamSize}
                 onChange={handleChange}
-                className="w-full pl-10 p-3 bg-black/40 rounded-lg"
-                required
+                className="p-3 bg-black/40 rounded-lg"
+              />
+              <input
+                type="number"
+                name="maxTeamSize"
+                value={formData.maxTeamSize}
+                onChange={handleChange}
+                className="p-3 bg-black/40 rounded-lg"
               />
             </div>
+          )}
 
-            <div className="relative flex-1">
-              <Clock size={18} className="absolute left-3 top-3 text-pink-400" />
-              <input
-                type="time"
-                name="eventTime"
-                value={formData.eventTime}
-                onChange={handleChange}
-                className="w-full pl-10 p-3 bg-black/40 rounded-lg"
-                required
-              />
-            </div>
-
+          {/* Event Date */}
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              type="date"
+              name="eventDate"
+              value={formData.eventDate}
+              onChange={handleChange}
+              className="p-3 bg-black/40 rounded-lg"
+              required
+            />
+            <input
+              type="time"
+              name="eventTime"
+              value={formData.eventTime}
+              onChange={handleChange}
+              className="p-3 bg-black/40 rounded-lg"
+              required
+            />
           </div>
-        </div>
 
-        <div>
-          <label className="block text-white/70 mb-2">
-            Submission Deadline
+          {/* Online Submission */}
+          <label className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              name="isOnlineSubmission"
+              checked={formData.isOnlineSubmission}
+              onChange={handleChange}
+            />
+            Enable Online Submission
           </label>
 
-          <div className="flex gap-3">
-
-            <div className="relative flex-1">
-              <CalendarDays size={18} className="absolute left-3 top-3 text-purple-400" />
+          {formData.isOnlineSubmission && (
+            <div className="grid grid-cols-2 gap-4">
               <input
                 type="date"
                 name="onlineSubmissionDeadline"
                 value={formData.onlineSubmissionDeadline}
                 onChange={handleChange}
-                className="w-full pl-10 p-3 bg-black/40 rounded-lg"
+                className="p-3 bg-black/40 rounded-lg"
                 required
               />
-            </div>
-
-            <div className="relative flex-1">
-              <Clock size={18} className="absolute left-3 top-3 text-pink-400" />
               <input
                 type="time"
                 name="deadlineTime"
                 value={formData.deadlineTime}
                 onChange={handleChange}
-                className="w-full pl-10 p-3 bg-black/40 rounded-lg"
+                className="p-3 bg-black/40 rounded-lg"
                 required
               />
             </div>
+          )}
 
-          </div>
-        </div>
-
-      </div>
-
-      {/* ================= ROUNDS ================= */}
-
-      <div className="bg-black/30 p-4 rounded-xl space-y-3">
-        <h3 className="text-purple-300">Add Round</h3>
-
-        <input
-          value={roundTitle}
-          onChange={(e) => setRoundTitle(e.target.value)}
-          placeholder="Round Title"
-          className="w-full p-2 bg-black/40 rounded"
-        />
-
-        <textarea
-          value={roundDescription}
-          onChange={(e) => setRoundDescription(e.target.value)}
-          placeholder="Round Description"
-          className="w-full p-2 bg-black/40 rounded"
-        />
-
-        {/* Add Rule */}
-        <div className="flex gap-2">
-          <input
-            value={currentRule}
-            onChange={(e) => setCurrentRule(e.target.value)}
-            placeholder="Add Rule"
-            className="flex-1 p-2 bg-black/40 rounded"
-          />
-          <button
-            type="button"
-            onClick={addRule}
-            className="bg-purple-600 px-4 py-2 rounded-lg"
-          >
-            Add
-          </button>
-        </div>
-
-        {/* Rules Display */}
-        <ul className="space-y-1 text-sm text-white/70">
-          {roundRules.map((rule, index) => (
-            <li key={index} className="flex justify-between items-center">
-              {rule}
-              <button
-                type="button"
-                onClick={() => removeRule(index)}
-                className="text-red-400 text-xs"
-              >
-                remove
+          {/* Instructions */}
+          <div className="space-y-3">
+            <h3 className="text-purple-300">General Instructions</h3>
+            <div className="flex gap-2">
+              <input
+                value={instructionInput}
+                onChange={(e) => setInstructionInput(e.target.value)}
+                className="flex-1 p-2 bg-black/40 rounded"
+              />
+              <button type="button" onClick={addInstruction} className="bg-purple-600 px-4 rounded">
+                Add
               </button>
-            </li>
-          ))}
-        </ul>
+            </div>
 
-        <button
-          type="button"
-          onClick={addRound}
-          className="bg-purple-600 px-4 py-2 rounded-lg"
-        >
-          Add Round
-        </button>
-
-        {/* Display Added Rounds */}
-        {formData.rounds.length > 0 && (
-          <div className="space-y-3 mt-4">
-            <h4 className="text-pink-400">Added Rounds</h4>
-
-            {formData.rounds.map((round, index) => (
-              <div
-                key={index}
-                className="bg-black/40 p-3 rounded-lg border border-white/10"
-              >
-                <div className="flex justify-between items-start">
-                  <h5 className="text-purple-300 font-semibold">
-                    {index + 1}. {round.title}
-                  </h5>
-
-                  <button
-                    type="button"
-                    onClick={() => removeRound(index)}
-                    className="text-red-400 text-xs hover:text-red-300"
-                  >
-                    Delete
-                  </button>
-                </div>
-
-                <p className="text-white/70 text-sm">
-                  {round.description}
-                </p>
-
-                {round.rules.length > 0 && (
-                  <ul className="list-disc list-inside text-white/60 text-sm mt-2">
-                    {round.rules.map((rule, i) => (
-                      <li key={i}>{rule}</li>
-                    ))}
-                  </ul>
-                )}
+            {formData.generalInstructions.map((ins, i) => (
+              <div key={i} className="flex justify-between text-sm text-white/70">
+                {ins}
+                <button type="button" onClick={() => removeInstruction(i)} className="text-red-400">
+                  remove
+                </button>
               </div>
             ))}
           </div>
-        )}
-      </div>
 
-      <button
-        type="submit"
-        className="bg-gradient-to-r from-pink-500 to-purple-600 px-6 py-3 rounded-xl"
-      >
-        Create Event
-      </button>
-    </form>
+          {/* Rounds */}
+          <div className="space-y-4">
+            <h3 className="text-pink-400">Add Round</h3>
+
+            <input
+              value={roundTitle}
+              onChange={(e) => setRoundTitle(e.target.value)}
+              placeholder="Round Title"
+              className="w-full p-2 bg-black/40 rounded"
+            />
+
+            <textarea
+              value={roundDescription}
+              onChange={(e) => setRoundDescription(e.target.value)}
+              placeholder="Round Description"
+              className="w-full p-2 bg-black/40 rounded"
+            />
+
+            <div className="flex gap-2">
+              <input
+                value={currentRule}
+                onChange={(e) => setCurrentRule(e.target.value)}
+                placeholder="Add Rule"
+                className="flex-1 p-2 bg-black/40 rounded"
+              />
+              <button type="button" onClick={addRule} className="bg-purple-600 px-4 rounded">
+                Add
+              </button>
+            </div>
+
+            {roundRules.map((rule, i) => (
+              <div key={i} className="flex justify-between text-sm text-white/60">
+                {rule}
+                <button type="button" onClick={() => removeRule(i)} className="text-red-400">
+                  remove
+                </button>
+              </div>
+            ))}
+
+            <button type="button" onClick={addRound} className="bg-pink-600 px-4 py-2 rounded">
+              Add Round
+            </button>
+
+            {formData.rounds.map((round, i) => (
+              <div key={i} className="bg-black/40 p-3 rounded">
+                <div className="flex justify-between">
+                  <strong>{round.roundNumber}. {round.title}</strong>
+                  <button onClick={() => removeRound(i)} type="button" className="text-red-400">
+                    Delete
+                  </button>
+                </div>
+                <p className="text-sm text-white/60">{round.description}</p>
+              </div>
+            ))}
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-pink-500 to-purple-600 py-3 rounded-xl"
+          >
+            {loading ? "Creating..." : "Create Event"}
+          </button>
+
+        </form>
+      </div>
+    </div>
   );
 };
 

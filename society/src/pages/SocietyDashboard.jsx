@@ -1,63 +1,108 @@
-import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import { useEventStore } from "../store/event.store";
 
 const SocietyDashboard = () => {
-  const location = useLocation();
+  const { events, fetchEvents, deleteEvent } = useEventStore();
 
-  const [stats, setStats] = useState({
-    events: 0,
-    participants: 0,
-    submissions: 0,
-  });
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
-  const loadStats = () => {
-    const events =
-      JSON.parse(localStorage.getItem("societyEvents")) || [];
-    const participants =
-      JSON.parse(localStorage.getItem("societyParticipants")) || [];
-
-    setStats({
-      events: events.length,
-      participants: participants.length,
-      submissions: participants.length, // can change later if separate submissions
-    });
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this event?")) {
+      await deleteEvent(id);
+    }
   };
 
-  // Load stats whenever route changes
-  useEffect(() => {
-    loadStats();
-  }, [location]);
-
   return (
-    <div>
+    <div className="p-6">
       <h1 className="text-3xl font-bold text-purple-400 mb-8">
         Society Dashboard
       </h1>
 
+      {/* Summary */}
+      <div className="grid md:grid-cols-3 gap-6 mb-10">
+        <div className="bg-black/40 p-6 rounded-xl">
+          <h3 className="text-white/70 mb-2">Total Events</h3>
+          <p className="text-2xl font-bold">{events.length}</p>
+        </div>
+      </div>
+
+      {/* Events List */}
       <div className="grid md:grid-cols-3 gap-6">
-        {/* Events Card */}
-        <div className="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10 shadow-lg hover:shadow-purple-500/20 transition">
-          <h3 className="text-white/70">Total Events</h3>
-          <p className="text-3xl font-bold mt-2 text-purple-400">
-            {stats.events}
-          </p>
-        </div>
+        {events.map((event) => (
+          <div key={event._id} className="bg-black/40 p-4 rounded-xl border border-white/10">
+            <img
+              src={event.bannerImage}
+              alt={event.title}
+              className="rounded-lg mb-3 w-full h-40 object-cover"
+            />
+            <h3 className="text-purple-300 font-semibold text-lg mb-2">
+              {event.title}
+            </h3>
+            <p className="text-white/70 text-sm mb-2">{event.description}</p>
+            
+            <p className="text-white/60 text-sm">
+              <strong>Type:</strong> {event.type}
+            </p>
+            {event.type === "group" && (
+              <p className="text-white/60 text-sm">
+                <strong>Team Size:</strong> {event.minTeamSize} - {event.maxTeamSize}
+              </p>
+            )}
+            <p className="text-white/60 text-sm">
+              <strong>Event Date:</strong> {new Date(event.eventDate).toLocaleString()}
+            </p>
+            <p className="text-white/60 text-sm">
+              <strong>Online Submission:</strong> {event.isOnlineSubmission ? "Yes" : "No"}
+            </p>
+            {event.isOnlineSubmission && event.onlineSubmissionDeadline && (
+              <p className="text-white/60 text-sm">
+                <strong>Deadline:</strong> {new Date(event.onlineSubmissionDeadline).toLocaleString()}
+              </p>
+            )}
 
-        {/* Participants Card */}
-        <div className="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10 shadow-lg hover:shadow-purple-500/20 transition">
-          <h3 className="text-white/70">Total Participants</h3>
-          <p className="text-3xl font-bold mt-2 text-purple-400">
-            {stats.participants}
-          </p>
-        </div>
+            {event.generalInstructions.length > 0 && (
+              <div className="mt-2">
+                <strong className="text-white/80 text-sm">Instructions:</strong>
+                <ul className="list-disc list-inside text-white/60 text-sm">
+                  {event.generalInstructions.map((inst, i) => (
+                    <li key={i}>{inst}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
-        {/* Submissions Card */}
-        <div className="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10 shadow-lg hover:shadow-purple-500/20 transition">
-          <h3 className="text-white/70">Total Submissions</h3>
-          <p className="text-3xl font-bold mt-2 text-purple-400">
-            {stats.submissions}
-          </p>
-        </div>
+            {event.rounds.length > 0 && (
+              <div className="mt-2">
+                <strong className="text-white/80 text-sm">Rounds:</strong>
+                {event.rounds.map((round, i) => (
+                  <div key={i} className="bg-black/30 p-2 rounded mt-1 text-white/60 text-sm">
+                    <p><strong>{i + 1}. {round.title}</strong></p>
+                    <p>{round.description}</p>
+                    {round.rules && round.rules.length > 0 && (
+                      <ul className="list-disc list-inside">
+                        {round.rules.map((rule, j) => (
+                          <li key={j}>{rule}</li>
+                        ))}
+                      </ul>
+                    )}
+                    {round.roundDate && (
+                      <p><strong>Date:</strong> {new Date(round.roundDate).toLocaleString()}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <button
+              onClick={() => handleDelete(event._id)}
+              className="mt-4 w-full bg-red-600 hover:bg-red-500 text-white py-2 rounded-lg"
+            >
+              Delete Event
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   );

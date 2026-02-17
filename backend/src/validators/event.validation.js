@@ -1,16 +1,15 @@
 import Joi from "joi";
 
 const roundSchema = Joi.object({
-    roundNumber: Joi.number().integer().min(1).required(),
+    roundNumber: Joi.number().integer().min(1),
 
-    title: Joi.string().min(3).max(100).required(),
+    title: Joi.string().min(3).max(100),
 
-    description: Joi.string().min(5).required(),
+    description: Joi.string().min(5),
 
     rules: Joi.array()
         .items(Joi.string().min(3))
-        .min(1)
-        .required(),
+        .optional(),
 
     roundDate: Joi.date().optional(),
 });
@@ -40,8 +39,7 @@ export const createEventSchema = Joi.object({
 
     rounds: Joi.array()
         .items(roundSchema)
-        .min(1)
-        .required(),
+        .optional(),
 
     isOnlineSubmission: Joi.boolean().required(),
 

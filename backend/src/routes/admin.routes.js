@@ -1,5 +1,5 @@
 import express from "express";
-import { approveUserController, getSocietiesController, getPendingUsersController, createEventController, createSocietyController, deleteEventController, getSocietyEventsController, rejectUserController } from "../controllers/admin.controller.js";
+import { approveUserController, getEventParticipantsController, getSocietiesController, getPendingUsersController, createEventController, createSocietyController, deleteEventController, getSocietyEventsController, rejectUserController } from "../controllers/admin.controller.js";
 import { protectAdmin } from "../middleware/authAdmin.middleware.js";
 import { requireSuperAdmin } from "../middleware/superAdmin.middleware.js";
 import { requireSocietyAdmin } from "../middleware/societyAdmin.middleware.js";
@@ -40,6 +40,8 @@ router.delete(
     requireSocietyAdmin,
     deleteEventController
 );
+
+router.get("/events/:eventId/participants", protectAdmin, requireSocietyAdmin, getEventParticipantsController);
 
 router.get(
     "/users",
