@@ -33,17 +33,17 @@ export default function SubmissionModal({ isOpen, onClose, event }) {
       setSubmitting(true);
       setError("");
 
-      const response = await submitEvent(event.id, url);
+      const response = await submitEvent(event.eventId, url);
 
-      if (response.data.success) {
+      if (response.success) {
         toast.success("Submission successful 🎉");
-
+        window.location.reload();
         setUrl("");
         onClose();
       }
     } catch (err) {
       toast.error(
-        err.response?.data?.message || "Submission failed"
+        err.response?.message || "Submission failed"
       );
     } finally {
       setSubmitting(false);

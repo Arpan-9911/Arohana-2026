@@ -35,11 +35,6 @@ const submissionSchema = new mongoose.Schema(
 );
 
 submissionSchema.index(
-    { team: 1 },
-    { unique: true, sparse: true }
-);
-
-submissionSchema.index(
     { event: 1, submittedBy: 1 },
     { unique: true, sparse: true }
 );

@@ -1,5 +1,4 @@
 import api from "./api";
-import { getUserParticipation } from "./user.service";
 
 // Fetch all events
 export const getAllEvents = async () => {
@@ -40,6 +39,5 @@ export const submitEvent = async (eventId, url) => {
   const response = await api.post(`/events/${eventId}/submit`, {
     url,
   });
-  await getUserParticipation();
   return response.data;
 };
