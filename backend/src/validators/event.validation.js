@@ -17,6 +17,8 @@ const roundSchema = Joi.object({
 export const createEventSchema = Joi.object({
     title: Joi.string().min(3).max(150).required(),
 
+    location: Joi.string().min(1).required(),
+
     description: Joi.string().min(10).required(),
 
     type: Joi.string()
@@ -62,9 +64,9 @@ export const createEventSchema = Joi.object({
         }
         // if group min team size must be at least 2
         if (value.type === "group") {
-            if (value.minTeamSize < 2) {
+            if (value.minTeamSize < 1) {
                 return helpers.message(
-                    "Group events must have minimum team size of at least 2"
+                    "Group events must have minimum team size of at least 1"
                 );
             }
         }

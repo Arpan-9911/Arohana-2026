@@ -9,6 +9,7 @@ const CreateEventForm = () => {
 
   const [formData, setFormData] = useState({
     title: "",
+    location: "",
     description: "",
     type: "solo",
     minTeamSize: 1,
@@ -27,7 +28,6 @@ const CreateEventForm = () => {
   const [roundDescription, setRoundDescription] = useState("");
   const [roundRules, setRoundRules] = useState([]);
   const [currentRule, setCurrentRule] = useState("");
-  const [instructionInput, setInstructionInput] = useState("");
 
   /* ================= General Change ================= */
 
@@ -141,6 +141,7 @@ const CreateEventForm = () => {
       const form = new FormData();
 
       form.append("title", formData.title);
+      form.append("location", formData.location);
       form.append("description", formData.description);
       form.append("type", formData.type);
       form.append("isOnlineSubmission", formData.isOnlineSubmission);
@@ -190,6 +191,7 @@ const CreateEventForm = () => {
   const resetForm = () => {
     setFormData({
       title: "",
+      location: "",
       description: "",
       type: "solo",
       minTeamSize: 1,
@@ -233,6 +235,16 @@ const CreateEventForm = () => {
             value={formData.description}
             onChange={handleChange}
             placeholder="Event Description"
+            className="w-full p-3 bg-black/40 rounded-lg"
+            required
+          />
+
+          {/* Location */}
+          <input
+            name="location"
+            value={formData.location}
+            onChange={handleChange}
+            placeholder="Event Location"
             className="w-full p-3 bg-black/40 rounded-lg"
             required
           />
@@ -404,6 +416,11 @@ const CreateEventForm = () => {
                   </button>
                 </div>
                 <p className="text-sm text-white/60">{round.description}</p>
+                <ul className="text-sm text-white/60">
+                  {round.rules.map((rule, j) => (
+                    <li key={j}>{j+1} {rule}</li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>

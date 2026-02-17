@@ -7,25 +7,24 @@ import generateTeamCode from "../utils/generateTeamCode.js";
 import Submission from "../models/submission.model.js";
 
 export async function getAllEventsController(req, res) {
-    try {
-        const events = await Event.find()
-            .select("-__v")
-            .populate("society", "name") // only fetch society name
-            .sort({ eventDate: 1 }); // chronology samjhoo aapp
+  try {
+    const events = await Event.find()
+      .select("_id title description bannerImage eventDate location society type") // Include society for filtering
+      .populate("society", "name")
+      .sort({ eventDate: 1 }); // Chronological order
 
-        return res.status(200).json({
-            success: true,
-            count: events.length,
-            events,
-        });
-
-    } catch (error) {
-        console.error("Error in getAllEventsController", error);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error",
-        });
-    }
+    return res.status(200).json({
+      success: true,
+      count: events.length,
+      events,
+    });
+  } catch (error) {
+    console.error("Error in getAllEventsController:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
 }
 
 export async function getEventByIdController(req, res) {
@@ -213,6 +212,7 @@ export async function createTeamController(req, res) {
         });
     }
 }
+
 export async function submitController(req, res) {
     try {
         const { eventId } = req.params;

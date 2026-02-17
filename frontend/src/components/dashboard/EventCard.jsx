@@ -36,7 +36,7 @@ export default function EventCard({
   title,
   organizer,
   type,
-  teamCode,
+  teamCode = "N/A",
   date,
   icon: Icon,
   color = "primary",
@@ -90,7 +90,7 @@ export default function EventCard({
         <div className="flex justify-between text-sm">
           <span className="text-white/40">Team Code</span>
           <span className="font-mono bg-white/5 px-2 py-0.5 rounded">
-            {teamCode}
+            {teamCode || "N/A"}
           </span>
         </div>
 

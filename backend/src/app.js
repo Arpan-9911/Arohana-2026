@@ -13,6 +13,7 @@ import adminAuthRoutes from './routes/adminAuth.routes.js';
 import userAuthRoutes from './routes/userAuth.routes.js';
 import superAdminRoutes from './routes/admin.routes.js';
 import qrRoutes from './routes/qr.routes.js';
+import societyRoutes from './routes/society.routes.js';
 
 import { globalErrorHandler } from './middleware/error.middleware.js';
 const app = express();
@@ -47,6 +48,7 @@ app.use("/api/v1/events", eventRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/teams", teamRoutes);
 app.use("/api/v1/qr", qrRoutes);
+app.use("/api/v1/society", societyRoutes);
 
 app.get("/", (req, res) => {
     res.json({ message: "API is running", route: req.originalUrl });

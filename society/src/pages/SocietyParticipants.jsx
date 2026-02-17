@@ -28,9 +28,9 @@ export default function SocietyParticipants() {
           onChange={(e) => selectEvent(e.target.value)}
           className="bg-white/5 text-white p-2 rounded-xl border border-white/10"
         >
-          <option value="" disabled>-- Choose an event --</option>
+          <option value="" disabled className="text-black">-- Choose an event --</option>
           {events.map((ev) => (
-            <option key={ev._id} value={ev._id}>{ev.title}</option>
+            <option key={ev._id} value={ev._id} className="text-black">{ev.title}</option>
           ))}
         </select>
       </div>

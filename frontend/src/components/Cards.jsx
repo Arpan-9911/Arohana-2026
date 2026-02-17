@@ -1,46 +1,49 @@
-import { useRef, useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react"
+import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
-
-const GANGS = [
-  { id: 1, title: "TechWhiz", frontImg: "images/blue.jpg", bgImg: "images/society.jpg" },
-  { id: 2, title: "CHANSKYA", frontImg: "images/blue.jpg", bgImg: "images/society.jpg" },
-  { id: 3, title: "CONUNDRUM", frontImg: "images/blue.jpg", bgImg: "images/society.jpg" },
-  { id: 4, title: "DIVERSITY", frontImg: "images/blue.jpg", bgImg: "images/society.jpg" },
-  { id: 5, title: "IRIS", frontImg: "images/blue.jpg", bgImg: "images/society.jpg" },
-  { id: 6, title: "NAVRANG", frontImg: "images/blue.jpg", bgImg: "images/society.jpg" },
-  { id: 7, title: "RAAGA", frontImg: "images/blue.jpg", bgImg: "images/society.jpg" },
-  { id: 8, title: "RUDRA", frontImg: "images/blue.jpg", bgImg: "images/society.jpg" },
-];
+import { useSocietyStore } from "../store/society.store";
 
 const Cards = () => {
+  const { societies, fetchSocieties, loading } = useSocietyStore();
   const [width, setWidth] = useState(0);
   const carousel = useRef();
 
+  // Fetch societies on mount
   useEffect(() => {
-    // Calculate the drag limit: total width minus the visible container width
-    setWidth(carousel.current.scrollWidth - carousel.current.offsetWidth);
-  }, []);
+    fetchSocieties();
+  }, [fetchSocieties]);
+
+  // Update drag width when societies change
+  useEffect(() => {
+    if (carousel.current) {
+      setWidth(carousel.current.scrollWidth - carousel.current.offsetWidth);
+    }
+  }, [societies]);
+
+  if (loading)
+    return <p className="text-white/70 text-center py-8">Loading societies...</p>;
+
+  if (!societies.length)
+    return <p className="text-white/70 text-center py-8">No societies found.</p>;
 
   return (
     <div className="bg-[#050505] py-20 overflow-hidden">
       <div className="px-10 mb-10">
-        <h2 className="text-pink-500 font-mono text-sm tracking-[0.5em]">Societies</h2>
+        <h2 className="text-pink-500 font-mono text-sm tracking-[0.5em]">
+          Societies
+        </h2>
       </div>
 
-      <motion.div
-        ref={carousel}
-        className="cursor-grab active:cursor-grabbing"
-      >
+      <motion.div ref={carousel} className="cursor-grab active:cursor-grabbing">
         <motion.div
           drag="x"
           dragConstraints={{ right: 0, left: -width }}
           whileTap={{ cursor: "grabbing" }}
           className="flex gap-8 px-10"
         >
-          {GANGS.map((gang) => (
-            <Card key={gang.id} gang={gang} />
+          {societies.map((society) => (
+            <Card key={society._id} society={society} />
           ))}
         </motion.div>
       </motion.div>
@@ -48,44 +51,36 @@ const Cards = () => {
   );
 };
 
-const Card = ({ gang }) => {
+const Card = ({ society }) => {
+  const frontImg = "images/blue.jpg"; // small front image
+  const bgImg = "images/society.jpg"; // background image
+
   return (
     <motion.div
       className="relative h-120 sm:h-147.5 w-75 sm:w-98 shrink-0 overflow-hidden rounded-[40px] bg-[#111] border border-white/5 group select-none"
     >
-      {/* Background Image - Hidden by default, reveals on hover */}
+      {/* Background Image */}
       <div
         className="
           absolute inset-0 z-0 bg-cover bg-center transition-all duration-700
-          /* mobile */
           opacity-100 grayscale-0 scale-100
-
-          /* desktops */
           md:opacity-20 md:grayscale md:scale-125
-
-          /* desktops hover */
           md:group-hover:opacity-100 
           md:group-hover:grayscale-0 
           md:group-hover:scale-100
         "
-        style={{ backgroundImage: `url(${gang.bgImg})` }}
+        style={{ backgroundImage: `url(${bgImg})` }}
       />
 
-      {/* Front Image - Slides up on hover */}
+      {/* Front Image - slides up on hover */}
       <div className="absolute inset-0 z-20 flex items-end justify-center pointer-events-none">
         <img
-          src={gang.frontImg}
-          alt=""
+          src={frontImg}
+          alt={society.name}
           className="
             w-[85%] transition-all duration-500 ease-out
-
-            /*mobile  */
             translate-y-0 opacity-100
-
-            /* desktop */
             md:translate-y-32 md:opacity-0
-
-            /* desktop hover */
             md:group-hover:translate-y-0 
             md:group-hover:opacity-100
           "
@@ -95,9 +90,9 @@ const Card = ({ gang }) => {
 
       {/* Content Overlay */}
       <div className="relative z-30 p-10 h-full flex flex-col justify-between">
-        <div className="flex justify-between items-start">
+        <div>
           <h3 className="text-2xl font-black text-white tracking-tighter italic drop-shadow-lg">
-            {gang.title}
+            {society.name}
           </h3>
         </div>
 
@@ -105,7 +100,12 @@ const Card = ({ gang }) => {
           <div className="h-0.5 grow bg-white/10 overflow-hidden">
             <div className="h-full bg-pink-600 w-full sm:w-0 group-hover:w-full transition-all duration-1000" />
           </div>
-          <Link to={`/events?society=${gang.title}`} className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center bg-cyan-500 sm:bg-gray-700  sm:group-hover:bg-cyan-500 sm:group-hover:border-cyan-500 transition-all group-hover:rotate-45">
+          <Link
+            to={`/events?society=${society._id}`}
+            className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center
+                       bg-cyan-500 sm:bg-gray-700 sm:group-hover:bg-cyan-500 sm:group-hover:border-cyan-500
+                       transition-all group-hover:rotate-45"
+          >
             <ArrowUpRight />
           </Link>
         </div>

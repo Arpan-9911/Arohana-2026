@@ -1,38 +1,22 @@
-// society.store.js
-import { create } from "zustand"
-import { getSocieties, createSociety as createSocietyAPI } from "@/lib/admin.service"
+import { create } from "zustand";
+import { getAllSocieties } from "../lib/society.service";
 
-export const useSocietyStore = create((set, get) => ({
+export const useSocietyStore = create((set) => ({
   societies: [],
   loading: false,
-  hasFetched: false,
+  error: null,
 
   fetchSocieties: async () => {
-    if (get().hasFetched) return;
-    set({ loading: true })
     try {
-      const data = await getSocieties()
-      if (data.success) {
-        set({
-          societies: data.societies,
-          hasFetched: true
-        })
-      }
+      set({ loading: true, error: null });
+
+      const data = await getAllSocieties();
+      set({ societies: data.societies, loading: false });
     } catch (err) {
-      console.error(err)
-    } finally {
-      set({ loading: false })
+      set({
+        loading: false,
+        error: err.response?.data?.message || "Failed to fetch societies",
+      });
     }
   },
-
-  createSociety: async (newSocietyData) => {
-    const response = await createSocietyAPI(newSocietyData)
-    if (response.success) {
-      set((state) => ({
-        societies: [...state.societies, response.society]
-      }))
-    }
-
-    return response
-  }
-}))
+}));
