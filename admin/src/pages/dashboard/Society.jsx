@@ -11,7 +11,7 @@ export default function SocietiesPage() {
   const { societies, loading, fetchSocieties, createSociety } = useSocietyStore()
 
   useEffect(() => {
-    if (!societies.length) {
+    if (!societies.length && societies.length === 0) {
       fetchSocieties();
     }
   }, [fetchSocieties, societies]);

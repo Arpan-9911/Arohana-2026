@@ -31,7 +31,6 @@ export const useParticipantsStore = create((set, get) => ({
   },
 
   approveParticipant: async (id) => {
-    console.log(id);
     const result = await approveUser(id)
     if (result.success) {
       set((state) => ({

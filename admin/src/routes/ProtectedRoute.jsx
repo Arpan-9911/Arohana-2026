@@ -1,10 +1,21 @@
 import { Navigate, Outlet } from "react-router-dom";
+import { useEffect } from "react";
+import { useAdminStore } from "@/store/admin.store";
 
 const ProtectedRoute = () => {
-  const user = JSON.parse(localStorage.getItem("user")); 
-  const isAuthenticated = user && user.role === "super-admin";
+  const { isAuthenticated, admin, loading, checkAuth } = useAdminStore();
 
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  if (loading) return <div>Loading...</div>;
+
+  if (!isAuthenticated || admin?.role !== "super-admin") {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

@@ -25,6 +25,7 @@ function App() {
         <Route index element={<SocietyDashboard />} />
         <Route path="events" element={<SocietyEvents />} />
         <Route path="participants" element={<SocietyParticipants />} />
+        <Route path="*" element={<SocietyDashboard />} />
       </Route>
     </Routes>
   );
