@@ -77,7 +77,7 @@ const EntryPassTicket = forwardRef(({ user }, ref) => {
             <p className="text-white/40 text-[10px] uppercase tracking-widest">
               Validity
             </p>
-            <p className="font-bold text-sm mt-1">MAR 14 - 16</p>
+            <p className="font-bold text-sm mt-1">FEB 24-25</p>
           </div>
         </div>
       </div>

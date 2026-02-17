@@ -21,8 +21,7 @@ const Cards = () => {
     }
   }, [societies]);
 
-  if (loading)
-    return <p className="text-white/70 text-center py-8">Loading societies...</p>;
+  if (loading) return null;
 
   if (!societies.length)
     return <p className="text-white/70 text-center py-8">No societies found.</p>;

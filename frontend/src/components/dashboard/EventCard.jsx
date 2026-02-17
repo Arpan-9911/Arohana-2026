@@ -95,7 +95,7 @@ export default function EventCard({
         </div>
 
         <div className="flex justify-between text-sm">
-          <span className="text-white/40">Date</span>
+          <span className="text-white/40">Register On</span>
           <span className="text-white/80 font-medium">{date}</span>
         </div>
         {submissionStatus === "pending" && (

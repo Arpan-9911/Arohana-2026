@@ -172,7 +172,6 @@ export async function createTeamController(req, res) {
         }
         // team code pattern(/^[A-Z0-9]+$/)
         const teamCode = generateTeamCode();
-        console.log(teamCode);
 
         const team = await Team.create({
             name,
@@ -202,9 +201,25 @@ export async function createTeamController(req, res) {
             },
         });
     } catch (err) {
-        // if (err.code === 11000) {
-        //     return res.status(400).json({ success: false, message: "Team code collision, retry" }); //duplicate teamcode
-        // }
+        console.log(err)
+        if (err.code === 11000) {
+            if (err.keyPattern?.teamCode) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Team code collision, retry"
+                });
+            }
+            if (err.keyPattern?.event && err.keyPattern?.name) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Team name already exists in this event"
+                });
+            }
+            return res.status(400).json({
+                success: false,
+                message: "Duplicate value error"
+            });
+        }
         console.error("Error in createTeamController", err);
         return res.status(500).json({
             success: false,
@@ -216,6 +231,12 @@ export async function createTeamController(req, res) {
 export async function submitController(req, res) {
     try {
         const { eventId } = req.params;
+        if(!mongoose.Types.ObjectId.isValid(eventId)){
+            return res.status(400).json({
+                success: false,
+                message: "Event Id is not valid",
+            })
+        }
         const user = req.user;
 
         const { error, value } = submissionSchema.validate(req.body);
@@ -331,7 +352,6 @@ export async function submitController(req, res) {
                 message: "Minimum team size not reached",
             });
         }
-
         await Submission.create({
             event: eventId,
             team: team._id,
@@ -349,7 +369,7 @@ export async function submitController(req, res) {
             { status: "submitted" }
         );
 
-        return res.json({
+        return res.status(201).json({
             success: true,
             message: "Team submission successful",
         });

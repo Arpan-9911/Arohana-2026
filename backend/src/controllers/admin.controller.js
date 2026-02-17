@@ -252,12 +252,20 @@ export async function getEventParticipantsController(req, res) {
   try {
     const { eventId } = req.params;
     if (!mongoose.Types.ObjectId.isValid(eventId)) {
-      return res.status(400).json({ success: false, message: "Invalid event ID" });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid event ID",
+      });
     }
+
     const event = await Event.findById(eventId);
     if (!event || event.society.toString() !== req.admin.society.toString()) {
-      return res.status(403).json({ success: false, message: "Not authorized" });
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized",
+      });
     }
+
     const participations = await Participation.find({ event: eventId })
       .populate("user", "name email")
       .populate({
@@ -266,26 +274,63 @@ export async function getEventParticipantsController(req, res) {
       })
       .lean();
 
-    // Attach submissions
-    const results = await Promise.all(
-      participations.map(async (p) => {
-        let submission = null;
-        if (p.team) {
-          submission = await Submission.findOne({ team: p.team._id }).lean();
-        } else {
-          submission = await Submission.findOne({ event: eventId, submittedBy: p.user._id }).lean();
-        }
+    const uniqueTeams = new Map();
+    const soloParticipants = [];
 
-        return {
-          ...p,
-          submission,
-        };
-      })
-    );
-    return res.status(200).json({ success: true, participants: results });
+    for (const p of participations) {
+      // TEAM EVENT
+      if (p.team) {
+        if (!uniqueTeams.has(p.team._id.toString())) {
+          uniqueTeams.set(p.team._id.toString(), p.team);
+        }
+      } 
+      // SOLO EVENT
+      else {
+        soloParticipants.push(p.user);
+      }
+    }
+
+    // Fetch all submissions at once (optimization)
+    const submissions = await Submission.find({ event: eventId }).lean();
+    const results = [];
+    
+    // Add solo users
+    for (const user of soloParticipants) {
+      const submission = submissions.find(
+        (s) => s.submittedBy?.toString() === user._id.toString()
+      );
+
+      results.push({
+        type: "solo",
+        user,
+        submission: submission || null,
+      });
+    }
+
+    // Add unique teams
+    for (const team of uniqueTeams.values()) {
+      const submission = submissions.find(
+        (s) => s.team?.toString() === team._id.toString()
+      );
+
+      results.push({
+        type: "team",
+        team,
+        submission: submission || null,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      participants: results,
+    });
+
   } catch (err) {
     console.error("Error in getEventParticipantsController", err);
-    return res.status(500).json({ success: false, message: "Internal server error" });
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 }
 
