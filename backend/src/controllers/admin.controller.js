@@ -4,6 +4,9 @@ import User from "../models/user.model.js";
 import Society from "../models/society.model.js";
 import Admin from '../models/admin.model.js';
 import Event from "../models/events.model.js";
+import Participation from "../models/participation.model.js";
+import Submission from "../models/submission.model.js";
+import Team from "../models/team.model.js";
 import { createSocietySchema } from '../validators/adminAuth.validator.js';
 import { createEventSchema } from '../validators/event.validation.js';
 import { nanoid } from "nanoid";
@@ -118,13 +121,31 @@ export async function createEventController(req, res) {
         }
 
         // parse rounds and generalInstructions from JSON strings to arrays
+        req.body.rounds = req.body.rounds ? JSON.parse(req.body.rounds) : [];
+        req.body.generalInstructions = req.body.generalInstructions ? JSON.parse(req.body.generalInstructions) : [];
 
-        if (req.body.rounds) {
-            req.body.rounds = JSON.parse(req.body.rounds);
+        if (req.body.minTeamSize) {
+            req.body.minTeamSize = Number(req.body.minTeamSize);
         }
 
-        if (req.body.generalInstructions) {
-            req.body.generalInstructions = JSON.parse(req.body.generalInstructions);
+        if (req.body.maxTeamSize) {
+            req.body.maxTeamSize = Number(req.body.maxTeamSize);
+        }
+
+        if (req.body.isOnlineSubmission !== undefined) {
+            req.body.isOnlineSubmission = req.body.isOnlineSubmission === "true";
+        }
+
+        if (req.body.type === "solo") {
+            req.body.minTeamSize = 1;
+            req.body.maxTeamSize = 1;
+        } else {
+            req.body.minTeamSize = Number(req.body.minTeamSize);
+            req.body.maxTeamSize = Number(req.body.maxTeamSize);
+        }
+
+        if (!req.body.isOnlineSubmission) {
+            req.body.onlineSubmissionDeadline = undefined;
         }
 
         const { error, value } = createEventSchema.validate(req.body);
@@ -225,6 +246,47 @@ export async function getSocietyEventsController(req, res) {
             message: "Internal server error",
         });
     }
+}
+
+export async function getEventParticipantsController(req, res) {
+  try {
+    const { eventId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(eventId)) {
+      return res.status(400).json({ success: false, message: "Invalid event ID" });
+    }
+    const event = await Event.findById(eventId);
+    if (!event || event.society.toString() !== req.admin.society.toString()) {
+      return res.status(403).json({ success: false, message: "Not authorized" });
+    }
+    const participations = await Participation.find({ event: eventId })
+      .populate("user", "name email")
+      .populate({
+        path: "team",
+        populate: { path: "members", select: "name email" },
+      })
+      .lean();
+
+    // Attach submissions
+    const results = await Promise.all(
+      participations.map(async (p) => {
+        let submission = null;
+        if (p.team) {
+          submission = await Submission.findOne({ team: p.team._id }).lean();
+        } else {
+          submission = await Submission.findOne({ event: eventId, submittedBy: p.user._id }).lean();
+        }
+
+        return {
+          ...p,
+          submission,
+        };
+      })
+    );
+    return res.status(200).json({ success: true, participants: results });
+  } catch (err) {
+    console.error("Error in getEventParticipantsController", err);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
 }
 
 export async function getPendingUsersController(req, res) {
