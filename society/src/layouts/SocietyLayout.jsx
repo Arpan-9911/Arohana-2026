@@ -1,4 +1,5 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
+import { LogOut } from "lucide-react";
 
 const SocietyLayout = () => {
   const location = useLocation();
@@ -30,6 +31,23 @@ const SocietyLayout = () => {
           {navItem("/events", "Manage Events")}
           {navItem("/participants", "Participants")}
         </nav>
+        <button
+          onClick={async () => {
+            try {
+              await import("../lib/admin.service").then(async (module) => {
+                await module.logoutAdmin();
+                window.location.href = "/login";
+              })
+            } catch (e) {
+              console.error("Logout failed", e)
+              window.location.href = "/login";
+            }
+          }}
+          className="flex w-full items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors text-left"
+        >
+          <LogOut size={20} />
+          <span className="font-medium">Logout</span>
+        </button>
       </aside>
 
       {/* Main Content */}

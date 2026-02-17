@@ -8,6 +8,7 @@ import { createSocietySchema } from '../validators/adminAuth.validator.js';
 import { createEventSchema } from '../validators/event.validation.js';
 import { nanoid } from "nanoid";
 import { rejectUserSchema } from "../validators/admin.validotor.js";
+
 export async function getSocietiesController(req, res) {
     try {
         const societies = await Society.find().select("-__v").lean();
@@ -84,18 +85,20 @@ export async function createSocietyController(req, res) {
             society: newSociety._id,
         });
         return res.status(201).json({
-            success: true,
-            message: "Society and Society Head created successfully",
-            society: {
-                id: newSociety._id,
-                name: newSociety.name,
-            },
-            admin: {
-                id: newAdmin._id,
-                name: newAdmin.name,
-                email: newAdmin.email,
-            },
-        });        // return success response with society details
+			success: true,
+			message: "Society and Society Head created successfully",
+			society: {
+				_id: newSociety._id,
+				name: newSociety.name,
+				description: newSociety.description,
+				admin: {
+					_id: newAdmin._id,
+					name: newAdmin.name,
+					email: newAdmin.email,
+					role: newAdmin.role,
+				},
+			},
+		});        // return success response with society details
     } catch (error) {
         console.error("Error in createSocietyController", error);
         return res.status(500).json({
@@ -226,14 +229,25 @@ export async function getSocietyEventsController(req, res) {
 
 export async function getPendingUsersController(req, res) {
     try {
-        const users = await User.find({ status: "pending" })
-            .select("-password")
-            .sort({ createdAt: -1 });
+        const users = await User.find()
+        .select("-password")
+        .sort({ createdAt: -1 });
+        
+        // Custom status priority
+        const statusPriority = {
+        pending: 1,
+        approved: 2,
+        rejected: 3,
+        };
+
+        const sortedUsers = users.sort((a, b) => {
+        return statusPriority[a.status] - statusPriority[b.status];
+        });
 
         return res.json({
-            success: true,
-            count: users.length,
-            users,
+        success: true,
+        count: sortedUsers.length,
+        users: sortedUsers,
         });
     } catch (err) {
         console.error("Error in getPendingUsersController", err);

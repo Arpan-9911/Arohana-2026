@@ -9,7 +9,7 @@ const CreateEventForm = ({ onCreate }) => {
     type: "solo",
     minTeamSize: "",
     maxTeamSize: "",
-    generalInstructions: "",
+    generalInstructions: [],
     rounds: [],
     onlineSubmissionDeadline: "",
     eventDate: "",
@@ -21,6 +21,7 @@ const CreateEventForm = ({ onCreate }) => {
   const [roundDescription, setRoundDescription] = useState("");
   const [roundRules, setRoundRules] = useState([]);
   const [currentRule, setCurrentRule] = useState("");
+  const [instructionInput, setInstructionInput] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -79,6 +80,37 @@ const CreateEventForm = ({ onCreate }) => {
     setRoundRules([]);
   };
 
+  const addInstruction = () => {
+    if (!instructionInput.trim()) return;
+    setFormData({
+      ...formData,
+      generalInstructions: [
+        ...formData.generalInstructions,
+        instructionInput.trim(),
+      ],
+    });
+    setInstructionInput("");
+  };
+
+  const removeInstruction = (index) => {
+    setFormData({
+      ...formData,
+      generalInstructions: formData.generalInstructions.filter(
+        (_, i) => i !== index
+      ),
+    });
+  };
+
+  const removeRound = (indexToRemove) => {
+    setFormData({
+      ...formData,
+      rounds: formData.rounds.filter(
+        (_, index) => index !== indexToRemove
+      ),
+    });
+  };
+
+
   /* ================= Submit ================= */
 
   const handleSubmit = (e) => {
@@ -106,7 +138,7 @@ const CreateEventForm = ({ onCreate }) => {
       type: "solo",
       minTeamSize: "",
       maxTeamSize: "",
-      generalInstructions: "",
+      generalInstructions: [],
       rounds: [],
       onlineSubmissionDeadline: "",
       eventDate: "",
@@ -189,13 +221,40 @@ const CreateEventForm = ({ onCreate }) => {
       )}
 
       {/* General Instructions */}
-      <textarea
-        name="generalInstructions"
-        value={formData.generalInstructions}
-        onChange={handleChange}
-        placeholder="General Instructions"
-        className="w-full p-3 bg-black/40 rounded-lg"
-      />
+      <div className="bg-black/30 p-4 rounded-xl space-y-3">
+        <h3 className="text-purple-300">General Instructions</h3>
+
+        <div className="flex gap-2">
+          <input
+            value={instructionInput}
+            onChange={(e) => setInstructionInput(e.target.value)}
+            placeholder="Add Instruction"
+            className="flex-1 p-2 bg-black/40 rounded"
+          />
+          <button
+            type="button"
+            onClick={addInstruction}
+            className="bg-purple-600 px-4 py-2 rounded-lg"
+          >
+            Add
+          </button>
+        </div>
+
+        <ul className="space-y-1 text-sm text-white/70">
+          {formData.generalInstructions.map((instruction, index) => (
+            <li key={index} className="flex justify-between items-center">
+              {instruction}
+              <button
+                type="button"
+                onClick={() => removeInstruction(index)}
+                className="text-red-400 text-xs"
+              >
+                remove
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       {/* ================= DATE & TIME ================= */}
 
@@ -330,6 +389,46 @@ const CreateEventForm = ({ onCreate }) => {
         >
           Add Round
         </button>
+
+        {/* Display Added Rounds */}
+        {formData.rounds.length > 0 && (
+          <div className="space-y-3 mt-4">
+            <h4 className="text-pink-400">Added Rounds</h4>
+
+            {formData.rounds.map((round, index) => (
+              <div
+                key={index}
+                className="bg-black/40 p-3 rounded-lg border border-white/10"
+              >
+                <div className="flex justify-between items-start">
+                  <h5 className="text-purple-300 font-semibold">
+                    {index + 1}. {round.title}
+                  </h5>
+
+                  <button
+                    type="button"
+                    onClick={() => removeRound(index)}
+                    className="text-red-400 text-xs hover:text-red-300"
+                  >
+                    Delete
+                  </button>
+                </div>
+
+                <p className="text-white/70 text-sm">
+                  {round.description}
+                </p>
+
+                {round.rules.length > 0 && (
+                  <ul className="list-disc list-inside text-white/60 text-sm mt-2">
+                    {round.rules.map((rule, i) => (
+                      <li key={i}>{rule}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <button

@@ -35,3 +35,8 @@ export const logoutAdmin = async () => {
   localStorage.removeItem("user");
   return response.data;
 }
+
+export const checkAdminAuth = async () => {
+  const response = await api.get("/auth/admin/check");
+  return response.data;
+};
