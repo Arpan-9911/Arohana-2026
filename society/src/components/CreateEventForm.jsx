@@ -27,6 +27,7 @@ const CreateEventForm = () => {
   const [roundDescription, setRoundDescription] = useState("");
   const [roundRules, setRoundRules] = useState([]);
   const [currentRule, setCurrentRule] = useState("");
+  const [instructionInput, setInstructionInput] = useState("");
 
   /* ================= General Change ================= */
 
