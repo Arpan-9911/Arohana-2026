@@ -1,5 +1,5 @@
 import express from "express";
-import { approveUserController, getSocieties, getPendingUsersController, createEventController, createSocietyController, deleteEventController, getSocietyEventsController, rejectUserController } from "../controllers/admin.controller.js";
+import { approveUserController, getSocietiesController, getPendingUsersController, createEventController, createSocietyController, deleteEventController, getSocietyEventsController, rejectUserController } from "../controllers/admin.controller.js";
 import { protectAdmin } from "../middleware/authAdmin.middleware.js";
 import { requireSuperAdmin } from "../middleware/superAdmin.middleware.js";
 import { requireSocietyAdmin } from "../middleware/societyAdmin.middleware.js";
@@ -11,7 +11,7 @@ router.get(
     "/societies",
     protectAdmin,
     requireSuperAdmin,
-    getSocieties
+    getSocietiesController
 )
 
 router.post(

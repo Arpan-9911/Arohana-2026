@@ -4,10 +4,11 @@ export async function validateQrController(req, res) {
     try {
         const { token } = req.params;
 
-        const user = await userModel.findOne({ qrToken: token });
+        const user = await User.findOne({ qrToken: token });
 
         if (!user) {
             return res.status(404).json({
+                success: false,
                 valid: false,
                 message: "Invalid QR code",
             });
@@ -15,14 +16,16 @@ export async function validateQrController(req, res) {
 
         if (user.status !== "approved") {
             return res.status(403).json({
+                success: false,
                 valid: false,
                 message: "User not approved",
             });
         }
 
         return res.json({
+            success: true,
             message: "QR code is valid",
-            valid_user: true,
+            valid: true,
             user: {
                 name: user.name,
                 email: user.email,
@@ -34,9 +37,10 @@ export async function validateQrController(req, res) {
         });
 
     } catch (err) {
+        console.error("Error in validateQrController", err);
         return res.status(500).json({
-            valid: false,
-            message: "Server error",
+            success: false,
+            message: "Internal server error",
         });
     }
 }

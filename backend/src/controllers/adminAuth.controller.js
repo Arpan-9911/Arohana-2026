@@ -10,6 +10,7 @@ export async function adminLoginController(req, res) {
 
         if (error) {
             return res.status(400).json({
+                success: false,
                 message: error.details[0].message
             });
         }
@@ -20,6 +21,7 @@ export async function adminLoginController(req, res) {
 
         if (!admin) {
             return res.status(401).json({
+                success: false,
                 message: "Invalid Credentials"
             });
         }        
@@ -27,6 +29,7 @@ export async function adminLoginController(req, res) {
 
         if (!isMatch) {
             return res.status(401).json({
+                success: false,
                 message: "Invalid Credentials"
             });
         }
@@ -52,9 +55,10 @@ export async function adminLoginController(req, res) {
             },
         });
     } catch (error) {
-        console.error("Admin Login Error:", error);
+        console.error("Error in adminLoginController", error);
         return res.status(500).json({
-            message: "Server Error"
+            success: false,
+            message: "Internal server error",
         });
     }
 
@@ -71,4 +75,27 @@ export function adminLogoutController(req, res) {
         success: true,
         message: "Admin logged out successfully",
     });
+}
+
+export async function checkAdminAuthController(req, res) {
+    try {
+        const admin = req.admin;
+
+        return res.status(200).json({
+            success: true,
+            admin: {
+                id: admin._id,
+                name: admin.name,
+                email: admin.email,
+                role: admin.role, // superadmin | societyadmin
+                society: admin.society || null,
+            },
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            message: "Server error",
+        });
+    }
 }
