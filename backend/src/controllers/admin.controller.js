@@ -8,7 +8,38 @@ import { createSocietySchema } from '../validators/adminAuth.validator.js';
 import { createEventSchema } from '../validators/event.validation.js';
 import { nanoid } from "nanoid";
 import { rejectUserSchema } from "../validators/admin.validotor.js";
+export async function getSocietiesController(req, res) {
+    try {
+        const societies = await Society.find().select("-__v").lean();
 
+        // For each society, attach its admin
+        const societiesWithAdmins = await Promise.all(
+            societies.map(async (society) => {
+                const admin = await Admin.findOne({
+                    society: society._id,
+                    role: "society-admin",
+                }).select("-password -__v");
+
+                return {
+                    ...society,
+                    admin,
+                };
+            }),
+        );
+
+        return res.status(200).json({
+            success: true,
+            count: societiesWithAdmins.length,
+            societies: societiesWithAdmins,
+        });
+    } catch (error) {
+        console.error("Get Societies Error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Server Error",
+        });
+    }
+}
 export async function createSocietyController(req, res) {
     try {
         // validate request body
