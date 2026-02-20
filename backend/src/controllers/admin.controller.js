@@ -464,3 +464,82 @@ export async function rejectUserController(req, res) {
         });
     }
 }
+
+export async function closeRegistrationController(req, res) {
+    try {
+        const { id } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid event ID",
+            });
+        }
+        const event = await Event.findById(id);
+
+        if (!event) {
+            return res.status(404).json({
+                message: "Event not found",
+            });
+        }
+
+        if (event.society.toString() !== req.admin.society.toString()) {
+            return res.status(403).json({
+                message: "You are not authorized to change registration status",
+            });
+        }
+
+        event.registrationOpen = false;
+        await event.save();
+
+        return res.json({
+            success: true,
+            message: "Registration closed",
+        });
+
+    } catch (error) {
+        console.error("Error in closeRegistrationController", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+}
+export async function openRegistrationController(req, res) {
+    try {
+        const { id } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid event ID",
+            });
+        }
+        const event = await Event.findById(id);
+
+        if (!event) {
+            return res.status(404).json({
+                message: "Event not found",
+            });
+        }
+
+        if (event.society.toString() !== req.admin.society.toString()) {
+            return res.status(403).json({
+                message: "You are not authorized to change registration status",
+            });
+        }
+
+        event.registrationOpen = true;
+        await event.save();
+
+        return res.json({
+            success: true,
+            message: "Registration Opened",
+        });
+
+    } catch (error) {
+        console.error("Error in openRegistrationController", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+}

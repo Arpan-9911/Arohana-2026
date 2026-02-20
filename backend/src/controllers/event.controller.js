@@ -1,35 +1,35 @@
 import mongoose from "mongoose";
 import Event from "../models/events.model.js";
-import { createTeamSchema, submissionSchema } from "../validators/event.validation.js";
+import {createTeamSchema, submissionSchema, updateEventSchema} from "../validators/event.validation.js";
 import Team from "../models/team.model.js";
 import Participation from "../models/participation.model.js";
 import generateTeamCode from "../utils/generateTeamCode.js";
 import Submission from "../models/submission.model.js";
 
 export async function getAllEventsController(req, res) {
-  try {
-    const events = await Event.find()
-      .select("_id title description bannerImage eventDate location society type") // Include society for filtering
-      .populate("society", "name")
-      .sort({ eventDate: 1 }); // Chronological order
+    try {
+        const events = await Event.find()
+            .select("_id title description bannerImage eventDate location society type") // Include society for filtering
+            .populate("society", "name")
+            .sort({eventDate: 1}); // Chronological order
 
-    return res.status(200).json({
-      success: true,
-      count: events.length,
-      events,
-    });
-  } catch (error) {
-    console.error("Error in getAllEventsController:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
-  }
+        return res.status(200).json({
+            success: true,
+            count: events.length,
+            events,
+        });
+    } catch (error) {
+        console.error("Error in getAllEventsController:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
 }
 
 export async function getEventByIdController(req, res) {
     try {
-        const { id } = req.params;
+        const {id} = req.params;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({
@@ -64,7 +64,7 @@ export async function getEventByIdController(req, res) {
 
 export async function participateSoloController(req, res) {
     try {
-        const { eventId } = req.params;
+        const {eventId} = req.params;
         const user = req.user;
 
         // valid eventId
@@ -77,7 +77,7 @@ export async function participateSoloController(req, res) {
 
         // user approved ?
         if (user.status !== "approved") {
-            return res.status(403).json({ success: false, message: "Your application is not Approved" });
+            return res.status(403).json({success: false, message: "Your application is not Approved"});
         }
         // events exists ?
         const event = await Event.findById(eventId);
@@ -130,7 +130,7 @@ export async function participateSoloController(req, res) {
 
 export async function createTeamController(req, res) {
     try {
-        const { eventId } = req.params;
+        const {eventId} = req.params;
         if (!mongoose.Types.ObjectId.isValid(eventId)) {
             return res.status(400).json({
                 success: false,
@@ -138,7 +138,7 @@ export async function createTeamController(req, res) {
             })
         }
         // validation for req.body
-        const { error, value } = createTeamSchema.validate(req.body);
+        const {error, value} = createTeamSchema.validate(req.body);
 
         if (error) {
             return res.status(400).json({
@@ -146,19 +146,20 @@ export async function createTeamController(req, res) {
                 message: error.details[0].message,
             });
         }
-        const { name } = value;
+        const {name} = value;
         const user = req.user
 
         if (user.status !== "approved") {
-            return res.status(403).json({ success: false, message: "Account not approved" });
+            return res.status(403).json({success: false, message: "Account not approved"});
         }
 
         const event = await Event.findById(eventId);
         if (!event || event.type !== "group") {
-            return res.status(400).json({ success: false, message: "Invalid group event" });
+            return res.status(400).json({success: false, message: "Invalid group event"});
         }
 
-        if (!event.isOnlineSubmission && event.type === "group") { }
+        if (!event.isOnlineSubmission && event.type === "group") {
+        }
 
         const existingParticipation = await Participation.findOne({
             user: user._id,
@@ -230,8 +231,8 @@ export async function createTeamController(req, res) {
 
 export async function submitController(req, res) {
     try {
-        const { eventId } = req.params;
-        if(!mongoose.Types.ObjectId.isValid(eventId)){
+        const {eventId} = req.params;
+        if (!mongoose.Types.ObjectId.isValid(eventId)) {
             return res.status(400).json({
                 success: false,
                 message: "Event Id is not valid",
@@ -239,7 +240,7 @@ export async function submitController(req, res) {
         }
         const user = req.user;
 
-        const { error, value } = submissionSchema.validate(req.body);
+        const {error, value} = submissionSchema.validate(req.body);
 
         if (error) {
             return res.status(400).json({
@@ -247,7 +248,7 @@ export async function submitController(req, res) {
                 message: error.details[0].message,
             });
         }
-        const { url } = value;
+        const {url} = value;
 
         if (user.status !== "approved") {
             return res.status(403).json({
@@ -365,8 +366,8 @@ export async function submitController(req, res) {
         await team.save();
 
         await Participation.updateMany(
-            { team: team._id },
-            { status: "submitted" }
+            {team: team._id},
+            {status: "submitted"}
         );
 
         return res.status(201).json({
@@ -375,6 +376,137 @@ export async function submitController(req, res) {
         });
     } catch (error) {
         console.error("Error in submitController", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+}
+
+export async function updateEventController(req, res) {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid event ID",
+            });
+        }
+
+        const event = await Event.findById(id);
+
+        if (!event) {
+            return res.status(404).json({
+                success: false,
+                message: "Event not found",
+            });
+        }
+
+        // Authorization
+        if (
+            req.admin.role !== "super-admin" &&
+            event.society.toString() !== req.admin.society.toString()
+        ) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized to edit this event",
+            });
+        }
+        const body = { ...req.body };
+
+        // Parse arrays if coming as JSON strings
+        try {
+            if (body.rounds && typeof body.rounds === "string") {
+                body.rounds = JSON.parse(body.rounds);
+            }
+
+            if (
+                body.generalInstructions &&
+                typeof body.generalInstructions === "string"
+            ) {
+                body.generalInstructions = JSON.parse(body.generalInstructions);
+            }
+        }catch (error) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid JSON format please try again",
+            });
+        }
+
+        if (body.minTeamSize !== undefined) {
+            body.minTeamSize = Number(body.minTeamSize);
+        }
+        if (body.maxTeamSize !== undefined) {
+            body.maxTeamSize = Number(body.maxTeamSize);
+        }
+        if (body.isOnlineSubmission !== undefined) {
+            body.isOnlineSubmission =
+                body.isOnlineSubmission === "true" ||
+                body.isOnlineSubmission === true;
+        }
+        // Remove onlineSubmissionDeadline if submission disabled
+        if (body.isOnlineSubmission === false) {
+            body.onlineSubmissionDeadline = undefined;
+        }
+
+        const { error, value } = updateEventSchema.validate(body);
+
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                message: error.details[0].message,
+            });
+        }
+
+        const participationExists = await Participation.exists({
+            event: event._id,
+        });
+
+        if (
+            participationExists &&
+            value.type &&
+            value.type !== event.type
+        ) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Cannot change event type after users have participated",
+            });
+        }
+
+        // Prevent reducing maxTeamSize below existing team size
+        if (value.maxTeamSize) {
+            const teams = await Team.find({ event: event._id });
+
+            for (let team of teams) {
+                if (team.members.length > value.maxTeamSize) {
+                    return res.status(400).json({
+                        success: false,
+                        message:
+                            "Cannot reduce maxTeamSize below current team size",
+                    });
+                }
+            }
+        }
+        Object.assign(event, value);
+
+        // Banner update
+        if (req.file) {
+            const baseUrl = `${req.protocol}://${req.get("host")}`;
+            event.bannerImage = `${baseUrl}/${req.file.path.replace(/\\/g, "/")}`;
+        }
+
+        await event.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Event updated successfully",
+            event,
+        });
+
+    } catch (error) {
+        console.error("Error in updateEventController:", error);
         return res.status(500).json({
             success: false,
             message: "Internal server error",

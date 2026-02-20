@@ -1,9 +1,21 @@
 import express from "express";
-import { approveUserController, getEventParticipantsController, getSocietiesController, getPendingUsersController, createEventController, createSocietyController, deleteEventController, getSocietyEventsController, rejectUserController } from "../controllers/admin.controller.js";
+import {
+    approveUserController,
+    getEventParticipantsController,
+    getSocietiesController,
+    getPendingUsersController,
+    createEventController,
+    createSocietyController,
+    deleteEventController,
+    getSocietyEventsController,
+    rejectUserController,
+    closeRegistrationController, openRegistrationController
+} from "../controllers/admin.controller.js";
 import { protectAdmin } from "../middleware/authAdmin.middleware.js";
 import { requireSuperAdmin } from "../middleware/superAdmin.middleware.js";
 import { requireSocietyAdmin } from "../middleware/societyAdmin.middleware.js";
 import { upload } from "../middleware/upload.middleware.js";
+import {updateEventController} from "../controllers/event.controller.js";
 
 const router = express.Router();
 
@@ -34,13 +46,32 @@ router.post(
     upload.single("banner_image"),
     createEventController
 );
+router.patch(
+    "/events/:id",
+    protectAdmin,
+    requireSocietyAdmin,
+    upload.single("banner_image"),
+    updateEventController
+);
 router.delete(
     "/events/:id",
     protectAdmin,
     requireSocietyAdmin,
     deleteEventController
 );
+router.patch(
+    "/events/:id/close-registration",
+    protectAdmin,
+    requireSocietyAdmin,
+    closeRegistrationController
+);
 
+router.patch(
+    "/events/:id/open-registration",
+    protectAdmin,
+    requireSocietyAdmin,
+    openRegistrationController
+);
 router.get("/events/:eventId/participants", protectAdmin, requireSocietyAdmin, getEventParticipantsController);
 
 router.get(
