@@ -13,6 +13,8 @@ import {
 } from "../lib/user.service";
 import { toast } from "sonner";
 import { useUserStore } from "../store/user.store";
+// Whatsapp icon
+import { MessageCircle } from "lucide-react";
 
 export default function EventDetails() {
   const { id } = useParams();
@@ -205,9 +207,18 @@ export default function EventDetails() {
     hour: "2-digit",
     minute: "2-digit",
   });
+  const submissionDeadline = event.onlineSubmissionDeadline
+  ? new Date(event.onlineSubmissionDeadline).toLocaleString("en-US", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    })
+  : null;
 
-  const registerDisabled =
+ const isRegistrationClosed = event.registrationOpen === false;
+
+  const finalRegisterDisabled =
     isSubmitting ||
+    isRegistrationClosed ||
     userStatus !== "approved" ||
     isAlreadyParticipating;
 
@@ -228,8 +239,8 @@ export default function EventDetails() {
 
           {/* LEFT */}
           <div className="flex flex-col h-full bg-[#121212] md:border-r border-white/10">
-            <div className="w-full h-64 md:h-80 relative shrink-0">
-              <img src={eventImage} alt={event.title} className="w-full h-full object-cover" />
+            <div className="w-full h-64 md:h-100 relative shrink-0">
+              <img src={eventImage} alt={event.title} className="w-full h-full object-fill" />
               <div className="absolute top-4 right-4 bg-pink-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
                 {event.type}
               </div>
@@ -246,19 +257,64 @@ export default function EventDetails() {
 
               <p className="text-gray-400 text-sm mb-8">{event.description}</p>
 
+              {/* Online Submission Info */}
+              {event.isOnlineSubmission && submissionDeadline && (
+                <div className="mb-4">
+                  <h3 className="text-md font-bold text-white uppercase tracking-wider mb-4 border-l-2 border-purple-500 pl-3">
+                    Online Submission Details
+                  </h3>
+
+                  <div className="bg-purple-500/10 border border-purple-500/20 p-5 rounded-2xl">
+                    <p className="text-sm text-gray-300 mb-2">
+                      📅 <span className="text-purple-400 font-semibold">Submission Deadline:</span>
+                    </p>
+
+                    <p className="text-white font-bold text-lg">
+                      {submissionDeadline}
+                    </p>
+
+                    <p className="text-xs text-gray-400 mt-3">
+                      Make sure to submit your work before the deadline. Late submissions will not be accepted.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* ---------------- WHATSAPP LINK ---------------- */}
+              {event.whatsappGroupLink && (
+                <div>
+                  <a
+                    href={event.whatsappGroupLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center justify-center gap-2 text-white bg-green-600 hover:bg-green-500 font-bold py-3 rounded-xl transition-all"
+                  >
+                    <MessageCircle color="#25D366" size={24} />
+                    Join WhatsApp Group
+                  </a>
+                </div>
+              )}
+
+
               <div className="mt-auto hidden md:block pt-6">
                 <button
                   onClick={handleRegisterClick}
-                  disabled={registerDisabled}
+                  disabled={finalRegisterDisabled}
                   className="w-full bg-linear-to-r from-pink-600 to-purple-600 text-white font-bold py-4 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isAlreadyParticipating
-                    ? "Already Registered"
-                    : isSubmitting
-                    ? "Processing..."
-                    : userStatus !== "approved"
-                    ? "Waiting for Approval"
-                    : "Register Now"}
+                  {
+                    isRegistrationClosed
+                      ? "Registration Closed"
+                      : !isAuthenticated
+                      ? "Login to Register"
+                      : isAlreadyParticipating
+                      ? "Already Registered"
+                      : isSubmitting
+                      ? "Processing..."
+                      : userStatus !== "approved"
+                      ? "Waiting for Approval"
+                      : "Register Now"
+                  }
                 </button>
               </div>
             </div>

@@ -20,6 +20,7 @@ export default function App() {
       <Routes>
 
         <Route path="/" element={<Home />} />
+        <Route path="/pass/:qrToken" element={<Pass />} />
 
         <Route element={<PublicRoute />}>
           <Route path="/login" element={<Login />} />
@@ -32,8 +33,6 @@ export default function App() {
 
         <Route element={<ProtectedRoute />} >
           <Route path="/dashboard" element={<Dashboard />} />
-
-          <Route path="/pass/:qrToken" element={<Pass />} />
         </Route>
 
 

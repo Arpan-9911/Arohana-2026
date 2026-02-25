@@ -4,32 +4,38 @@ import { Lock, Mail } from "lucide-react"
 import { loginAdmin } from "@/lib/admin.service"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
+import { useAdminStore } from "../store/admin.store";
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsLoading(true)
+  const setAdmin = useAdminStore((state) => state.setAdmin);
 
-    const formData = new FormData(e.target)
-    const email = formData.get("email")
-    const password = formData.get("password")
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const formData = new FormData(e.target);
+    const email = formData.get("email");
+    const password = formData.get("password");
 
     try {
-      const response = await loginAdmin({ email, password })
+      const response = await loginAdmin({ email, password });
+
       if (response.success) {
-        toast.success("Login successful")
-        navigate("/")
+        setAdmin(response.admin); // 🔥 IMPORTANT
+        toast.success("Login successful");
+        navigate("/", { replace: true });
       }
     } catch (error) {
-      console.error(error)
-      toast.error(error.response?.data?.message || "Login failed")
+      toast.error(
+        error.response?.data?.message || "Login failed"
+      );
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">

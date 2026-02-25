@@ -1,33 +1,31 @@
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
+
 export const Button = ({
-  children = "One-Sided Raised",
+  children,
   onClick,
-}) => (
-  <motion.button
-    onClick={onClick}
-    whileHover={{
-      boxShadow: "8px 8px 0px rgba(236, 72, 153, 0.4), 0px 0px 20px rgba(236, 72, 153, 0.3)",
-      x: -2,
-      y: -2,
-    }}
-    whileTap={{
-      boxShadow: "2px 2px 0px rgba(236, 72, 153, 0.4)",
-      x: 6,
-      y: 6,
-    }}
-    style={{
-      background: "linear-gradient(135deg, #ec4899 0%, #db2777 100%)",
-      color: "white",
-      padding: "12px 24px",
-      borderRadius: "6px",
-      fontSize: "14px",
-      fontWeight: "600",
-      cursor: "pointer",
-      border: "2px solid #be185d",
-      boxShadow: "6px 6px 0px rgba(236, 72, 153, 0.3)",
-      transition: "all 0.2s ease",
-    }}
-  >
-    {children}
-  </motion.button>
-)
+  variant = "primary",
+}) => {
+  const base =
+    "relative px-8 py-3 rounded-xl font-semibold overflow-hidden transition-all duration-300";
+
+  const variants = {
+    primary:
+      "bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg hover:shadow-pink-500/40",
+    outline:
+      "border border-white/30 text-white hover:bg-white/10 backdrop-blur-md",
+  };
+
+  return (
+    <motion.button
+      onClick={onClick}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      className={`${base} ${variants[variant]}`}
+    >
+      <span className="relative z-10">{children}</span>
+
+      {/* Glow Effect */}
+      <div className="absolute inset-0 bg-white/10 opacity-0 hover:opacity-100 transition duration-300 blur-xl" />
+    </motion.button>
+  );
+};

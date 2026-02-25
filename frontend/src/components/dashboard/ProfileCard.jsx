@@ -4,7 +4,7 @@ import { useUserStore } from "../../store/user.store";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-export default function ProfileCard({ onViewPass, user }) {
+export default function ProfileCard({ onViewPass, user, setIsReuploadOpen }) {
   const { logout } = useUserStore();
   const navigate = useNavigate();
 
@@ -82,6 +82,11 @@ export default function ProfileCard({ onViewPass, user }) {
             {user?.status || "Pending"}
           </div>
 
+          {/* Showing reason for rejection */}
+          {user?.status === "rejected" && user?.rejectionReason && (
+            <p className="text-white/50 mt-2 mb-8">{user?.rejectionReason}</p>
+          )}
+
           <h1 className="text-4xl font-extrabold tracking-tight">
             {user?.name || "User"}
           </h1>
@@ -103,6 +108,15 @@ export default function ProfileCard({ onViewPass, user }) {
               <QrCode size={20} />
               View Entry Pass
             </motion.button>
+          )}
+
+          {user?.status === "rejected" && (
+            <button
+              onClick={() => setIsReuploadOpen(true)}
+              className="w-full md:w-auto bg-primary hover:bg-primary/90 text-white font-bold py-4 px-8 rounded-3xl flex items-center justify-center gap-2 shadow-lg"
+            >
+              Re-upload Documents
+            </button>
           )}
 
           <motion.button

@@ -5,7 +5,7 @@ import  TopBar  from "../components/TopBar"
 import Sidebar from "../components/Sidebar"
 
 export function DashboardLayout({ children }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
     <div className="flex h-screen bg-background">

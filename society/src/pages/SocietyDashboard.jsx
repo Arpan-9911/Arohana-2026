@@ -1,8 +1,18 @@
 import { useEffect } from "react";
 import { useEventStore } from "../store/event.store";
+import { useNavigate } from "react-router-dom";
 
 const SocietyDashboard = () => {
-  const { events, fetchEvents, deleteEvent } = useEventStore();
+  const navigate = useNavigate();
+  const { 
+    events, 
+    fetchEvents, 
+    deleteEvent, 
+    setEditingEvent,
+    closeRegistration,
+    openRegistration
+  } = useEventStore();
+
 
   useEffect(() => {
     fetchEvents();
@@ -46,6 +56,17 @@ const SocietyDashboard = () => {
               <p className="text-white/60 text-sm">
                 <strong>Type:</strong> {event.type}
               </p>
+
+              {event.whatsappGroupLink && (
+                <a
+                  href={event.whatsappGroupLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 block text-center bg-green-600 hover:bg-green-500 py-2 rounded-lg text-white"
+                >
+                  Join WhatsApp Group
+                </a>
+              )}
               {event.type === "group" && (
                 <p className="text-white/60 text-sm">
                   <strong>Team Size:</strong> {event.minTeamSize} - {event.maxTeamSize}
@@ -96,6 +117,42 @@ const SocietyDashboard = () => {
                 </div>
               )}
             </div>
+            {/* Registration Status */}
+            <div className="mt-3">
+              <p className="text-sm text-white/60">
+                <strong>Status:</strong>{" "}
+                {event.registrationOpen ? (
+                  <span className="text-green-400">Open</span>
+                ) : (
+                  <span className="text-red-400">Closed</span>
+                )}
+              </p>
+
+              {event.registrationOpen ? (
+                <button
+                  onClick={() => closeRegistration(event._id)}
+                  className="mt-2 w-full bg-red-500 hover:bg-red-400 py-2 rounded-lg text-white"
+                >
+                  Close Registration
+                </button>
+              ) : (
+                <button
+                  onClick={() => openRegistration(event._id)}
+                  className="mt-2 w-full bg-green-500 hover:bg-green-400 py-2 rounded-lg text-white"
+                >
+                  Open Registration
+                </button>
+              )}
+            </div>
+            <button
+              onClick={() => {
+                setEditingEvent(event);
+                navigate(`/events?edit=${event._id}`);
+              }}
+              className="mt-2 w-full bg-yellow-500 hover:bg-yellow-400 text-black py-2 rounded-lg"
+            >
+              Edit Event
+            </button>
             <button
               onClick={() => handleDelete(event._id)}
               className="mt-4 w-full bg-red-600 hover:bg-red-500 text-white py-2 rounded-lg"

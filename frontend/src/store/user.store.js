@@ -1,6 +1,10 @@
 // user.store.js
 import { create } from "zustand";
-import { checkUserAuth, logoutUser } from "../lib/user.service.js";
+import {
+  checkUserAuth,
+  logoutUser,
+  reuploadDocuments,
+} from "../lib/user.service.js";
 
 export const useUserStore = create((set, get) => ({
   user: null,
@@ -8,6 +12,7 @@ export const useUserStore = create((set, get) => ({
   isAuthenticated: false,
   hasChecked: false,
 
+  // ✅ CHECK AUTH
   checkAuth: async () => {
     if (get().hasChecked) return;
 
@@ -39,6 +44,7 @@ export const useUserStore = create((set, get) => ({
     }
   },
 
+  // ✅ SET USER AFTER LOGIN
   setUser: (user) => {
     set({
       user,
@@ -48,6 +54,7 @@ export const useUserStore = create((set, get) => ({
     });
   },
 
+  // ✅ LOGOUT
   logout: async () => {
     try {
       await logoutUser();
@@ -59,6 +66,34 @@ export const useUserStore = create((set, get) => ({
         isAuthenticated: false,
         hasChecked: false,
       });
+    }
+  },
+
+  // ✅ REUPLOAD DOCUMENTS
+  reuploadUserDocuments: async (formData) => {
+    try {
+      set({ loading: true });
+
+      const response = await reuploadDocuments(formData);
+
+      if (response.success) {
+        // update user locally without re-fetching
+        set((state) => ({
+          user: {
+            ...state.user,
+            status: "pending",
+            rejectionReason: null,
+            documentsUpdatedAt: new Date(),
+          },
+        }));
+      }
+
+      return response;
+    } catch (error) {
+      console.error("Reupload error:", error);
+      throw error;
+    } finally {
+      set({ loading: false });
     }
   },
 }));

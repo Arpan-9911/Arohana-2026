@@ -22,7 +22,7 @@ const EntryPassTicket = forwardRef(({ user }, ref) => {
         {/* Header */}
         <div className="text-center mb-6">
           <p className="text-primary text-xs tracking-[0.35em] uppercase mb-3">
-            Arohana 2025 • Official Ticket
+            Arohana 2026 • Official Ticket
           </p>
 
           <h1 className="text-4xl font-medium tracking-tight">ENTRY PASS</h1>
@@ -77,7 +77,7 @@ const EntryPassTicket = forwardRef(({ user }, ref) => {
             <p className="text-white/40 text-[10px] uppercase tracking-widest">
               Validity
             </p>
-            <p className="font-bold text-sm mt-1">FEB 24-25</p>
+            <p className="font-bold text-sm mt-1">FEB 23-24</p>
           </div>
         </div>
       </div>

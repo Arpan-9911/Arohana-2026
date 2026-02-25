@@ -3,10 +3,20 @@ import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSocietyStore } from "../store/society.store";
+import conundrum from "../socImages/conundrum.jpg";
+import chanakya from "../socImages/chanakya.webp";
+import diversity from "../socImages/diversity.webp";
+import iris from "../socImages/iris.jpg";
+import impressions from "../socImages/impressions.webp";
+import navrang from "../socImages/navrang.jpg";
+import raaga from "../socImages/raaga.webp";
+import rudra from "../socImages/rudra.jpg";
+import techwhiz from "../socImages/techwhiz.jpg";
 
 const Cards = () => {
   const { societies, fetchSocieties, loading } = useSocietyStore();
   const [width, setWidth] = useState(0);
+  const imagesArray = [conundrum, chanakya, diversity, iris, impressions, navrang, raaga, rudra, techwhiz];
   const carousel = useRef();
 
   // Fetch societies on mount
@@ -41,8 +51,8 @@ const Cards = () => {
           whileTap={{ cursor: "grabbing" }}
           className="flex gap-8 px-10"
         >
-          {societies.map((society) => (
-            <Card key={society._id} society={society} />
+          {societies.map((society, index) => (
+            <Card key={society._id} society={society} frontImg={imagesArray[index]} />
           ))}
         </motion.div>
       </motion.div>
@@ -50,13 +60,12 @@ const Cards = () => {
   );
 };
 
-const Card = ({ society }) => {
-  const frontImg = "images/blue.jpg"; // small front image
-  const bgImg = "images/society.jpg"; // background image
+const Card = ({ society, frontImg }) => {
+  const bgImg = "images/society.jpg";
 
   return (
     <motion.div
-      className="relative h-120 sm:h-147.5 w-75 sm:w-98 shrink-0 overflow-hidden rounded-[40px] bg-[#111] border border-white/5 group select-none"
+      className="relative h-110 w-75 sm:w-98 shrink-0 overflow-hidden rounded-[40px] bg-[#111] border border-white/5 group select-none"
     >
       {/* Background Image */}
       <div
@@ -77,7 +86,8 @@ const Card = ({ society }) => {
           src={frontImg}
           alt={society.name}
           className="
-            w-[85%] transition-all duration-500 ease-out
+            w-[85%] h-[80%] object-fill
+            transition-all duration-500 ease-out
             translate-y-0 opacity-100
             md:translate-y-32 md:opacity-0
             md:group-hover:translate-y-0 
@@ -100,7 +110,7 @@ const Card = ({ society }) => {
             <div className="h-full bg-pink-600 w-full sm:w-0 group-hover:w-full transition-all duration-1000" />
           </div>
           <Link
-            to={`/events?society=${society._id}`}
+            to={`/events?society=${society.name}`}
             className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center
                        bg-cyan-500 sm:bg-gray-700 sm:group-hover:bg-cyan-500 sm:group-hover:border-cyan-500
                        transition-all group-hover:rotate-45"

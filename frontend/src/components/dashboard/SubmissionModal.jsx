@@ -13,8 +13,7 @@ export default function SubmissionModal({ isOpen, onClose, event }) {
 
   const isValidGoogleDriveLink = (link) => {
     return (
-      link.includes("drive.google.com") &&
-      (link.includes("/file/") || link.includes("open?id="))
+      link.includes("drive.google.com")
     );
   };
 

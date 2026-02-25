@@ -103,6 +103,7 @@ export async function userLoginController(req, res) {
                 email: user.email,
                 status: user.status,
                 rejectionReason: user.rejectionReason,
+                qrToken: user.qrToken,
             },
         });
 
@@ -201,6 +202,7 @@ export async function checkAuthController(req, res) {
                 email: user.email,
                 status: user.status, // pending / approved
                 qrToken: user.qrToken || null,
+                rejectionReason: user.rejectionReason || null,
             },
         });
 
