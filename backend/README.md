@@ -480,7 +480,7 @@ FRONTEND_URL=http://localhost:5173
 ```bash
 NODE_ENV=production
 PORT=5000
-FRONTEND_URL=https://arohana.in
+FRONTEND_URL=https://arohanahyperion.in
 ```
 
 ---

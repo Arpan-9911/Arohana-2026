@@ -8,7 +8,7 @@ import Participation from "../models/participation.model.js";
 import Submission from "../models/submission.model.js";
 import Team from "../models/team.model.js";
 import { createSocietySchema } from '../validators/adminAuth.validator.js';
-import { createEventSchema } from '../validators/event.validation.js';
+import { createEventSchema, updateEventSchema } from '../validators/event.validation.js';
 import { nanoid } from "nanoid";
 import { rejectUserSchema } from "../validators/admin.validotor.js";
 
@@ -146,6 +146,10 @@ export async function createEventController(req, res) {
 
         if (!req.body.isOnlineSubmission) {
             req.body.onlineSubmissionDeadline = undefined;
+        }
+
+        if (req.body.whatsappGroupLink) {
+            req.body.whatsappGroupLink = req.body.whatsappGroupLink.trim();
         }
 
         const { error, value } = createEventSchema.validate(req.body);
@@ -458,6 +462,218 @@ export async function rejectUserController(req, res) {
 
     } catch (err) {
         console.error("Error in rejectUserController", err);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+}
+
+export async function closeRegistrationController(req, res) {
+    try {
+        const { id } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid event ID",
+            });
+        }
+        const event = await Event.findById(id);
+
+        if (!event) {
+            return res.status(404).json({
+                message: "Event not found",
+            });
+        }
+
+        if (event.society.toString() !== req.admin.society.toString()) {
+            return res.status(403).json({
+                message: "You are not authorized to change registration status",
+            });
+        }
+
+        event.registrationOpen = false;
+        await event.save();
+
+        return res.json({
+            event,
+            success: true,
+            message: "Registration closed",
+        });
+
+    } catch (error) {
+        console.error("Error in closeRegistrationController", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+}
+
+export async function openRegistrationController(req, res) {
+    try {
+        const { id } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid event ID",
+            });
+        }
+        const event = await Event.findById(id);
+
+        if (!event) {
+            return res.status(404).json({
+                message: "Event not found",
+            });
+        }
+
+        if (event.society.toString() !== req.admin.society.toString()) {
+            return res.status(403).json({
+                message: "You are not authorized to change registration status",
+            });
+        }
+
+        event.registrationOpen = true;
+        await event.save();
+
+        return res.json({
+            event,
+            success: true,
+            message: "Registration Opened",
+        });
+
+    } catch (error) {
+        console.error("Error in openRegistrationController", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+}
+
+export async function updateEventController(req, res) {
+    try {
+        const { id } = req.params;
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid event ID",
+            });
+        }
+
+        const event = await Event.findById(id);
+
+        if (!event) {
+            return res.status(404).json({
+                success: false,
+                message: "Event not found",
+            });
+        }
+
+        // Authorization
+        if (
+            req.admin.role !== "super-admin" &&
+            event.society.toString() !== req.admin.society.toString()
+        ) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorized to edit this event",
+            });
+        }
+        const body = { ...req.body };
+
+        // Parse arrays if coming as JSON strings
+        try {
+            if (body.rounds && typeof body.rounds === "string") {
+                body.rounds = JSON.parse(body.rounds);
+            }
+
+            if (
+                body.generalInstructions &&
+                typeof body.generalInstructions === "string"
+            ) {
+                body.generalInstructions = JSON.parse(body.generalInstructions);
+            }
+        }catch (error) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid JSON format please try again",
+            });
+        }
+
+        if (body.minTeamSize !== undefined) {
+            body.minTeamSize = Number(body.minTeamSize);
+        }
+        if (body.maxTeamSize !== undefined) {
+            body.maxTeamSize = Number(body.maxTeamSize);
+        }
+        if (body.isOnlineSubmission !== undefined) {
+            body.isOnlineSubmission =
+                body.isOnlineSubmission === "true" ||
+                body.isOnlineSubmission === true;
+        }
+        // Remove onlineSubmissionDeadline if submission disabled
+        if (body.isOnlineSubmission === false) {
+            body.onlineSubmissionDeadline = undefined;
+        }
+
+        const { error, value } = updateEventSchema.validate(body);
+
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                message: error.details[0].message,
+            });
+        }
+
+        const participationExists = await Participation.exists({
+            event: event._id,
+        });
+
+        if (
+            participationExists &&
+            value.type &&
+            value.type !== event.type
+        ) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Cannot change event type after users have participated",
+            });
+        }
+
+        // Prevent reducing maxTeamSize below existing team size
+        if (value.maxTeamSize) {
+            const teams = await Team.find({ event: event._id });
+
+            for (let team of teams) {
+                if (team.members.length > value.maxTeamSize) {
+                    return res.status(400).json({
+                        success: false,
+                        message:
+                            "Cannot reduce maxTeamSize below current team size",
+                    });
+                }
+            }
+        }
+        Object.assign(event, value);
+
+        // Banner update
+        if (req.file) {
+            const baseUrl = `${req.protocol}://${req.get("host")}`;
+            event.bannerImage = `${baseUrl}/${req.file.path.replace(/\\/g, "/")}`;
+        }
+
+        await event.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Event updated successfully",
+            event,
+        });
+
+    } catch (error) {
+        console.error("Error in updateEventController:", error);
         return res.status(500).json({
             success: false,
             message: "Internal server error",

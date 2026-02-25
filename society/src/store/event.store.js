@@ -4,6 +4,9 @@ import {
   createEvent,
   deleteEvent,
   getEventParticipants,
+  updateEventService,
+  closeRegistrationService,
+  openRegistrationService
 } from "../lib/admin.service";
 
 export const useEventStore = create((set) => ({
@@ -12,6 +15,10 @@ export const useEventStore = create((set) => ({
   error: null,
   selectedEvent: null,
   participants: [],
+  editingEvent: null,
+
+  setEditingEvent: (event) => set({ editingEvent: event }),
+  clearEditingEvent: () => set({ editingEvent: null }),
 
   /* ================= FETCH EVENTS ================= */
   fetchEvents: async () => {
@@ -63,4 +70,57 @@ export const useEventStore = create((set) => ({
       set({ loading: false });
     }
   },
+
+  updateEvent: async (id, formData) => {
+    try {
+      const res = await updateEventService(id, formData);
+      set((state) => ({
+        events: state.events.map((e) =>
+          e._id === id ? res.event : e
+        ),
+        editingEvent: null,
+      }));
+      return { success: true };
+    } catch (err) {
+      set({ error: err.response?.data?.message || "Failed to update event" });
+      return { success: false };
+    }
+  },
+
+  /* ================= CLOSE REGISTRATION ================= */
+  closeRegistration: async (id) => {
+    try {
+      const res = await closeRegistrationService(id);
+
+      set((state) => ({
+        events: state.events.map((e) =>
+          e._id === id ? res.event : e
+        ),
+      }));
+
+      return { success: true };
+    } catch (err) {
+      set({ error: err.response?.data?.message || "Failed to close registration" });
+      return { success: false };
+    }
+  },
+
+  /* ================= OPEN REGISTRATION ================= */
+  openRegistration: async (id) => {
+    try {
+      const res = await openRegistrationService(id);
+
+      set((state) => ({
+        events: state.events.map((e) =>
+          e._id === id ? res.event : e
+        ),
+      }));
+
+      return { success: true };
+    } catch (err) {
+      set({ error: err.response?.data?.message || "Failed to open registration" });
+      return { success: false };
+    }
+  },
+
 }));

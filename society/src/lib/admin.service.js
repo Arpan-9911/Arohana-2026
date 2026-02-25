@@ -34,3 +34,18 @@ export const getEventParticipants = async (eventId) => {
   const response = await api.get(`/admin/events/${eventId}/participants`);
   return response.data;
 };
+
+export const updateEventService = async (id, formData) => {
+  const response = await api.patch(`/admin/events/${id}`, formData);
+  return response.data;
+};
+
+export const closeRegistrationService = async (id) => {
+  const response = await api.patch(`/admin/events/${id}/close-registration`);
+  return response.data;
+};
+
+export const openRegistrationService = async (id) => {
+  const response = await api.patch(`/admin/events/${id}/open-registration`);
+  return response.data;
+};

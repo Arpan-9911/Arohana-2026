@@ -112,6 +112,7 @@ export default function Signup() {
             name="aadhaarCard"
             type="file"
             icon={File}
+            accept="image/*"
           />
 
           <Input
@@ -121,6 +122,7 @@ export default function Signup() {
             name="idCard"
             type="file"
             icon={File}
+            accept="image/*"
           />
         </div>
 

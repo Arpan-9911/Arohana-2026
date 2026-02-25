@@ -37,3 +37,16 @@ export const getUserParticipation = async () => {
   const response = await api.get("/users/me/participations");
   return response.data;
 };
+
+export const reuploadDocuments = async (formData) => {
+  const response = await api.patch(
+    "/auth/user/reupload-documents",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return response.data;
+};

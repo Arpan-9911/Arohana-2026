@@ -9,33 +9,57 @@ import { ChevronDown } from "lucide-react";
 const FAQ_ITEMS = [
   {
     id: 1,
-    question: "What is Aarohana'26?",
-    answer: "Aarohana'26 is a celebration of  It's a premier cultural festival featuring performances, exhibitions, and immersive experiences.",
+    question: "What is Aarohana?",
+    answer:
+      "Aarohana is our college’s annual cultural fest that brings together students from various colleges to celebrate talent, creativity, and innovation. The fest features technical competitions, cultural performances, gaming events, workshops, and much more.",
   },
   {
     id: 2,
-    question: "When and where is the festival happening?",
-    answer: "Aarohana'26 will take place at our main venue in the city center. For specific dates and location details, please check back soon as we finalize our schedule.",
+    question: "Who can participate in Aarohana?",
+    answer:
+      "Students from our college as well as other recognized colleges are welcome to participate. Some events may have specific eligibility criteria, so please check the event details before registering.",
   },
   {
     id: 3,
-    question: "How can I purchase tickets?",
-    answer: "Tickets will be available for purchase through our official website. Early bird discounts and group packages will be announced soon. Subscribe to our newsletter for updates.",
+    question: "How can I register for events?",
+    answer:
+      "You can register for events through the official Aarohana website. Simply explore the events section, select your preferred event, and complete the registration process. Make sure to register before the deadline.",
   },
   {
     id: 4,
-    question: "Are there accommodations for out-of-town guests?",
-    answer: "Yes! We've partnered with several premium hotels in the area to offer special rates for festival attendees. More details will be available on our partnerships page.",
+    question: "Will participants receive certificates?",
+    answer:
+      "Yes, Winners and runners-up will be awarded special certificates and prizes during the valedictory ceremony.",
   },
   {
     id: 5,
-    question: "Can I volunteer at the festival?",
-    answer: "We'd love your help! Volunteer applications will open in [Month]. Visit our volunteer page to learn about available roles and apply. All volunteers receive exclusive festival merchandise.",
+    question: "What kind of events are included in Aarohana?",
+    answer:
+      "Aarohana includes a mix of technical events (like coding contests, quizzes, project showcases), cultural events (dance, music, drama), fun games, and interactive sessions. There is something for everyone.",
   },
   {
     id: 6,
-    question: "Is the festival accessible for people with disabilities?",
-    answer: "Absolutely. Aarohana'26 is committed to being fully accessible. All venues are wheelchair accessible, and we provide assistive listening devices and other accommodations upon request.",
+    question: "Can I participate in multiple events?",
+    answer:
+      "Yes, you can participate in multiple events as long as their schedules do not clash. We recommend checking the event timings in advance.",
+  },
+  {
+    id: 7,
+    question: "How will I know my registration is confirmed?",
+    answer:
+      "Once you successfully register, you can check your dashboard on the website to view your registered events.",
+  },
+  {
+    id: 8,
+    question: "Are team events allowed?",
+    answer:
+      "Yes, several events are team-based. The minimum and maximum team size will be mentioned in the event details. Team members must complete registration before the deadline.",
+  },
+  {
+    id: 9,
+    question: "Whom should I contact for queries or issues?",
+    answer:
+      "For any queries related to registration, events, or technical issues, you can contact the event coordinators listed on the website footer or reach out through the official Aarohana contact details.",
   },
 ];
 

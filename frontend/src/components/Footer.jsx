@@ -34,8 +34,8 @@ const Footer = () => {
         {/* ===== Animated Top Glow Line ===== */}
         <motion.div
           style={{ opacity: glowOpacity }}
-          className="absolute top-0 left-0 w-full h-[1px] 
-          bg-gradient-to-r from-pink-500/50 via-purple-500/50 to-pink-500/50"
+          className="absolute top-0 left-0 w-full h-px
+          bg-linear-to-r from-pink-500/50 via-purple-500/50 to-pink-500/50"
         />
 
         {/* ===== Subtle Background Noise ===== */}
@@ -54,9 +54,9 @@ const Footer = () => {
 
               <div className="space-y-3 text-white/60 text-xs">
                 {[
-                  { num: "9911081263", label: "Tech", color: "text-pink-400" },
-                  { num: "9XXXXXXXXX", label: "Coord", color: "text-purple-400" },
-                  { num: "9XXXXXXXXX", label: "General", color: "text-yellow-400" }
+                  { num: "8054275393", label: "Cultural President", color: "text-pink-400" },
+                  { num: "6398497752", label: "CUltural VP", color: "text-purple-400" },
+                  { num: "9911081263", label: "Coordinator", color: "text-yellow-400" }
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-2 group cursor-default">
                     <Phone size={14} className={item.color} />
@@ -103,7 +103,7 @@ const Footer = () => {
                       {item.label}
                     </span>
                     {/* Animated Underline Effect */}
-                    <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-300 group-hover:w-full" />
+                    <span className="absolute bottom-0 left-0 w-0 h-px bg-linear-to-r from-pink-500 to-purple-500 transition-all duration-300 group-hover:w-full" />
                   </NavHashLink>
                 ))}
               </div>
@@ -116,11 +116,11 @@ const Footer = () => {
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                 className="
                   relative group
-                  bg-gradient-to-br from-white/[0.05] to-transparent
+                  bg-linear-to-br from-white/5 to-transparent
                   backdrop-blur-xl
                   border border-white/10
                   px-10 py-8 rounded-2xl
-                  text-center w-full max-w-[280px]
+                  text-center w-full max-w-70
                   shadow-[0_0_30px_rgba(219,39,119,0.15)]
                   overflow-hidden
                 "
@@ -128,7 +128,7 @@ const Footer = () => {
                 <motion.div 
                   animate={{ opacity: [0.3, 0.6, 0.3] }}
                   transition={{ duration: 3, repeat: Infinity }}
-                  className="absolute inset-0 bg-gradient-to-tr from-pink-500/10 via-purple-500/5 to-transparent" 
+                  className="absolute inset-0 bg-linear-to-tr from-pink-500/10 via-purple-500/5 to-transparent" 
                 />
 
                 <div className="relative z-10">
@@ -144,7 +144,7 @@ const Footer = () => {
                     </span>
                   </div>
 
-                  <h2 className="text-4xl font-black tracking-tighter bg-gradient-to-r from-pink-400 via-purple-400 to-pink-500 bg-clip-text text-transparent drop-shadow-lg">
+                  <h2 className="text-4xl font-black tracking-tighter bg-linear-to-r from-pink-400 via-purple-400 to-pink-500 bg-clip-text text-transparent drop-shadow-lg">
                     TechWhiz
                   </h2>
 

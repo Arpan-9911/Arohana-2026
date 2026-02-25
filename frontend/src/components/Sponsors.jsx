@@ -1,50 +1,20 @@
 'use client';
 
 import { motion } from "framer-motion";
+import CBI from '../sponsors/Central Bank of India Logo SVG.svg';
+import RG from '../sponsors/rg hospital.svg';
+import IA from '../sponsors/infinity arcade.svg';
+import TS from '../sponsors/UYGW.svg';
+import DE from '../sponsors/UYGW(1).svg';
+import DV from '../sponsors/UYGW(2).svg';
 
 const SPONSORS = [
-  {
-    id: 1,
-    name: "Sakura Tech",
-    category: "Platinum",
-    logo: "ST",
-    color: "from-[#C2185B] to-[#F48FB1]"
-  },
-  {
-    id: 2,
-    name: "Nebula Studios",
-    category: "Gold",
-    logo: "NS",
-    color: "from-[#D4AF37] to-[#F4E4A6]"
-  },
-  {
-    id: 3,
-    name: "Zen Innovations",
-    category: "Gold",
-    logo: "ZI",
-    color: "from-[#2A0E37] to-[#6B3AA0]"
-  },
-  {
-    id: 4,
-    name: "Aurora Labs",
-    category: "Silver",
-    logo: "AL",
-    color: "from-[#F48FB1] to-[#C2185B]"
-  },
-  {
-    id: 5,
-    name: "Void Digital",
-    category: "Silver",
-    logo: "VD",
-    color: "from-[#2A0E37] to-[#C2185B]"
-  },
-  {
-    id: 6,
-    name: "Ethereal Arts",
-    category: "Silver",
-    logo: "EA",
-    color: "from-[#D4AF37] to-[#2A0E37]"
-  },
+  { id: 1, name: "Central Bank of India", category: "Powered By", logo: CBI, color: "transparent" },
+  { id: 2, name: "RG Hospitals", category: "Health Partner", logo: RG, color: "white" },
+  { id: 3, name: "Infinity Arcade", category: "Gaming Partner", logo: IA, color: "white" },
+  { id: 4, name: "Turning Stones", category: "Event Partner", logo: TS, color: "transparent" },
+  { id: 5, name: "Diego Events", category: "Event Partner", logo: DE, color: "white" },
+  { id: 6, name: "Denver", category: "Fragrance Partner", logo: DV, color: "from-[#FF6F00] to-[#FFD54F]" },
 ];
 
 const containerVariants = {
@@ -110,7 +80,7 @@ export default function Sponsors() {
               className="group relative"
             >
               {/* Card */}
-              <div className="relative h-32 sm:h-40 rounded-2xl overflow-hidden backdrop-blur-xl border border-white/10 hover:border-white/30 transition-all duration-300 bg-linear-to-br from-white/5 to-transparent p-6 flex flex-col items-center justify-center">
+              <div className="relative h-40 rounded-2xl overflow-hidden backdrop-blur-xl border border-white/10 hover:border-white/30 transition-all duration-300 bg-linear-to-br from-white/5 to-transparent p-6 flex flex-col items-center justify-center">
                 
                 {/* Background linear */}
                 <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-linear-to-br ${sponsor.color}`} />
@@ -119,12 +89,11 @@ export default function Sponsors() {
                 <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-px bg-linear-to-r from-[#C2185B] via-transparent to-[#D4AF37] pointer-events-none" />
                 
                 {/* Content */}
-                <div className="relative z-10 text-center">
+                <div className="relative z-10 flex flex-col justify-center items-center">
                   {/* Logo Circle */}
-                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-linear-to-br ${sponsor.color} mb-3 group-hover:scale-110 transition-transform duration-300`}>
-                    <span className="text-white font-bold text-lg">{sponsor.logo}</span>
+                  <div className={`max-w-30 max-h-20 flex justify-center mb-2 bg-${sponsor.color} p-1 rounded`}>
+                    <img src={sponsor.logo} alt={sponsor.name} className="object-contain" /> 
                   </div>
-                  
                   {/* Text */}
                   <h3 className="text-white font-semibold text-sm sm:text-base mb-1 truncate">
                     {sponsor.name}

@@ -104,6 +104,16 @@ const eventSchema = new mongoose.Schema({
         ref: "Admin",
         required: true,
     },
+
+    registrationOpen: {
+        type: Boolean,
+        default: true
+    },
+
+    whatsappGroupLink:{
+        type:String,
+        default:""
+    }
 },
     { timestamps: true }
 );

@@ -39,13 +39,18 @@ const userSchema = new mongoose.Schema({
 
     approvedAt: Date,
     documentsUpdatedAt: Date,
-
     qrToken: {
         type: String,
         default: "",
     },
-
     qrGeneratedAt: Date,
+    passwordResetToken: {
+        type: String,
+    },
+    passwordResetExpires: {
+        type: Date,
+    },
+
 }, { timestamps: true });
 
 export default mongoose.model('User', userSchema);

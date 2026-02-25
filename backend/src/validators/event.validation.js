@@ -51,6 +51,11 @@ export const createEventSchema = Joi.object({
         otherwise: Joi.forbidden(),
     }),
 
+    whatsappGroupLink: Joi.string()
+        .uri()
+        .allow("", null)
+        .optional(),
+
     eventDate: Joi.date().required(),
 })
     .custom((value, helpers) => {
@@ -114,3 +119,62 @@ export const submissionSchema = Joi.object({
             "string.pattern.base": "Only Google Drive links are allowed",
         }),
 });
+
+export const updateEventSchema = Joi.object({
+    title: Joi.string().min(3).max(150),
+    location: Joi.string().min(1),
+    description: Joi.string().min(10),
+    type: Joi.string().valid("solo", "group"),
+    minTeamSize: Joi.number().integer().min(1),
+    maxTeamSize: Joi.number()
+        .integer()
+        .min(Joi.ref("minTeamSize")),
+    generalInstructions: Joi.array()
+        .items(Joi.string().min(3)),
+    rounds: Joi.array()
+        .items(roundSchema),
+    isOnlineSubmission: Joi.boolean(),
+    onlineSubmissionDeadline: Joi.when("isOnlineSubmission", {
+        is: true,
+        then: Joi.date().required(),
+        otherwise: Joi.optional(),
+    }),
+    registrationDeadline: Joi.date(),
+    whatsappGroupLink: Joi.string()
+        .uri()
+        .allow("", null)
+        .optional(),
+    eventDate: Joi.date(),
+}).custom((value, helpers) => {
+
+        // If type is being updated, validate team size logic only if both present
+        if (value.type === "solo") {
+            if (
+                (value.minTeamSize && value.minTeamSize !== 1) ||
+                (value.maxTeamSize && value.maxTeamSize !== 1)
+            ) {
+                return helpers.message(
+                    "Solo events must have minTeamSize and maxTeamSize equal to 1"
+                );
+            }
+        }
+
+        if (value.type === "group") {
+            if (value.minTeamSize && value.minTeamSize < 1) {
+                return helpers.message(
+                    "Group events must have minimum team size of at least 1"
+                );
+            }
+        }
+        if (
+            value.minTeamSize &&
+            value.maxTeamSize &&
+            value.maxTeamSize < value.minTeamSize
+        ) {
+            return helpers.message(
+                "maxTeamSize must be greater than or equal to minTeamSize"
+            );
+        }
+
+        return value;
+    });
